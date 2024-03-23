@@ -14,3 +14,19 @@ This is the best value FPGA board I've found — it provides 45k LUTs (almost do
 ![](img/colorlight_i9.jpeg)
 
 However, thanks the the abstractions provided by [LiteX-Boards](https://github.com/litex-hub/litex-boards), it should be trivial to port to any of the other 100+ supported FPGA platforms.
+
+One thing to keep in mind is that the clock reset generators (CRGs) provided by `litex_boards.targets` don't follow a consistent abstraction,
+with most of them hardcoding the HDMI video clocks for a specific resolution and framerate.
+I've [patched](https://github.com/davidar/litex-boards/commit/6acd4fe39d7435a99625aedee195cffe4427d781) the `colorlight_i5` target to expose the pixel clock frequency.
+
+## Software
+
+- [OSS CAD Suite](https://github.com/YosysHQ/oss-cad-suite-build)
+- [LiteX](https://github.com/enjoy-digital/litex)
+- remember to [setup udev rules](https://github.com/adamgreig/ecpdap/tree/master/drivers)
+
+If using WSL2:
+- [usbipd](https://github.com/dorssel/usbipd-win)
+- [kernel with `CONFIG_USB_HIDDEV` enabled](https://github.com/microsoft/WSL2-Linux-Kernel/releases/tag/linux-msft-wsl-5.15.150.1)
+
+To build and load a simple example shader, just run `./example.py`
