@@ -14,7 +14,7 @@ def main_image(pattern):
         i_i_reset=ResetSignal(),
         i_i_width=640,
         i_i_height=480,
-        i_i_rd=pattern.vtg_sink.de,
+        i_i_rd=((pattern.vtg_sink.hcount < 640) & (pattern.vtg_sink.vcount < 480)),
         i_i_newline=(pattern.vtg_sink.hcount == 639),
         i_i_newframe=(
             (pattern.vtg_sink.hcount == 639) & (pattern.vtg_sink.vcount == 479)
