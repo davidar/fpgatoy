@@ -44,7 +44,8 @@ class Pattern(LiteXModule):
         fsm.act(
             "RUN",
             vtg_sink.connect(
-                source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
+                # source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
+                source, keep={"ready"}
             ),
             If(
                 vtg_sink.ready & (vtg_sink.hcount == 0) & (vtg_sink.vcount == 0),
