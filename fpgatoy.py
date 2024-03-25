@@ -92,6 +92,8 @@ class BaseSoC(SoCCore):
         pattern = ClockDomainsRenamer("hdmi")(pattern)
         self.add_module("pattern", pattern)
 
+        platform.add_source_dir(path="./")
+
         self.comb += [
             pattern_vtg.source.connect(pattern.vtg_sink),
             pattern.source.connect(self.videophy.sink),
