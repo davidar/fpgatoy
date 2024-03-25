@@ -86,13 +86,13 @@ class BaseSoC(SoCCore):
         self.add_module("pattern_vtg", pattern_vtg)
 
         pattern = Pattern()
-        res = main_image(pattern)
+        res = main_image(pattern, platform)
         if res is not None:
             pattern.comb += res
         pattern = ClockDomainsRenamer("hdmi")(pattern)
         self.add_module("pattern", pattern)
 
-        platform.add_source_dir(path="./")
+        # platform.add_source_dir(path="./")
 
         self.comb += [
             pattern_vtg.source.connect(pattern.vtg_sink),

@@ -1,0 +1,3 @@
+[submodule "rt"]
+	path = rt
+	url = ../rt.git
