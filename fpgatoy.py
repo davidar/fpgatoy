@@ -128,5 +128,6 @@ class SimSoC(BaseSoC):
             sim_config=sim_config,
             interactive=True,
             video=True,
+            opt_level="O1",
             # threads=4,
         )
