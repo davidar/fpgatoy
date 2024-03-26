@@ -95,11 +95,14 @@ class MySoC(BaseSoC):
     def __init__(self, main_image):
         platform = colorlight_i5.Platform("i9", "7.2")
         self.crg = colorlight_i5_CRG(platform, 25e6, with_video_pll=True, pix_clk=25e6)
-        # led = platform.request("user_led_n", 0)
-        # counter = Signal(26)
-        # self.comb += led.eq(counter[25])
-        # self.sync += counter.eq(counter + 1)
         BaseSoC.__init__(self, main_image, platform, 25e6, "hdmi")
+        self.blink()  # optional
+
+    def blink(self):
+        led = self.platform.request("user_led_n", 0)
+        counter = Signal(26)
+        self.comb += led.eq(counter[25])
+        self.sync += counter.eq(counter + 1)
 
     def run(self):
         builder = Builder(self)
