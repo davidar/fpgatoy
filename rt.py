@@ -2,6 +2,7 @@
 
 from migen import *
 import fpgatoy
+import os
 
 
 def main_image(pattern, platform):
@@ -44,4 +45,7 @@ def main_image(pattern, platform):
     ]
 
 
-fpgatoy.MySoC(main_image).run()
+# so $readmemb works in the simulator
+os.system("mkdir -p build/sim/gateware/ && cp rt/RTCore.v_*.bin build/sim/gateware/")
+
+fpgatoy.SimSoC(main_image).run()
