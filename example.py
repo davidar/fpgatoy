@@ -24,11 +24,14 @@ from litex.soc.integration.builder import Builder
 import fpgatoy
 
 
-def main_image(pattern):
+def main_image(pattern, platform):
     x = pattern.vtg_sink.hcount
     y = pattern.vtg_sink.vcount
     t = pattern.fcount
     return [
+        pattern.vtg_sink.connect(
+            pattern.source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
+        ),
         pattern.source.r.eq(t + (x >> 3) + 0),
         pattern.source.g.eq(t + (y >> 3) + 160),
         pattern.source.b.eq(t + (x >> 3) + 320),

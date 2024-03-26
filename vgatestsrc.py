@@ -5,7 +5,8 @@ from litex.soc.integration.builder import Builder
 import fpgatoy
 
 
-def main_image(pattern):
+def main_image(pattern, platform):
+    platform.add_source("vgatestsrc.v")
     pixel = Signal(24)
     pattern.specials += Instance(
         "vgatestsrc",
@@ -22,6 +23,9 @@ def main_image(pattern):
         o_o_pixel=pixel,
     )
     return [
+        pattern.vtg_sink.connect(
+            pattern.source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
+        ),
         pattern.source.r.eq(pixel[16:]),
         pattern.source.g.eq(pixel[8:16]),
         pattern.source.b.eq(pixel[:8]),

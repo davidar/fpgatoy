@@ -19,7 +19,7 @@ class Pattern(LiteXModule):
         self.vtg_sink = vtg_sink = stream.Endpoint(video_timing_layout)
         self.source = source = stream.Endpoint(video_data_layout)
 
-        self.fcount = Signal(8)
+        self.fcount = Signal(16)
 
         enable = Signal()
         self.specials += MultiReg(self.enable, enable)
@@ -28,29 +28,20 @@ class Pattern(LiteXModule):
         fsm = ResetInserter()(fsm)
         self.fsm = fsm
         self.comb += fsm.reset.eq(~self.enable)
+        newframe = (vtg_sink.hcount == 0) & (vtg_sink.vcount == 0)
         fsm.act(
             "IDLE",
             NextValue(self.fcount, 0),
             vtg_sink.ready.eq(1),
             If(
-                vtg_sink.valid
-                & vtg_sink.first
-                & (vtg_sink.hcount == 0)
-                & (vtg_sink.vcount == 0),
+                vtg_sink.valid & vtg_sink.first & newframe,
                 vtg_sink.ready.eq(0),
                 NextState("RUN"),
             ),
         )
         fsm.act(
             "RUN",
-            vtg_sink.connect(
-                # source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
-                source, keep={"ready"}
-            ),
-            If(
-                vtg_sink.ready & (vtg_sink.hcount == 0) & (vtg_sink.vcount == 0),
-                NextValue(self.fcount, self.fcount + 1),
-            ),
+            If(vtg_sink.ready & newframe, NextValue(self.fcount, self.fcount + 1)),
         )
 
 

@@ -40,6 +40,9 @@ def main_image(pattern, platform):
         o_io_pixel_out_vtg_hsync=pattern.source.hsync,
         o_io_pixel_out_vtg_vsync=pattern.source.vsync,
     )
+    return [
+        pattern.vtg_sink.connect(pattern.source, keep={"ready"}),
+    ]
 
 
 soc = fpgatoy.BaseSoC(main_image)

@@ -10,13 +10,16 @@ from migen import *
 from litex.soc.integration.builder import Builder
 import fpgatoy
 
-def main_image(pattern):
+def main_image(pattern, platform):
     x, y, u, v, u2, v2, h, t, p, q, w0, R0, B0, o, R1, B1, w1, r, d, R2, B2, p1, c, o1, o2, R3, B3, c1, Ro, Bo, Rm, Bm, Go = [
         Signal((32, True), name) for name in [
             "x", "y", "u", "v", "u2", "v2", "h", "t", "p", "q", "w0", "R0", "B0", "o", "R1", "B1", "w1", "r", "d", "R2", "B2", "p1", "c", "o1", "o2", "R3", "B3", "c1", "Ro", "Bo", "Rm", "Bm", "Go"
         ]
     ]
     return [
+        pattern.vtg_sink.connect(
+            pattern.source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
+        ),
         x.eq(pattern.vtg_sink.hcount[3:] - 5),
         y.eq(pattern.vtg_sink.vcount[3:] - 10),
         u.eq(x - 36),
