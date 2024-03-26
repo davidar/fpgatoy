@@ -7,7 +7,6 @@
 # https://humanshader.com
 
 from migen import *
-from litex.soc.integration.builder import Builder
 import fpgatoy
 
 def main_image(pattern, platform):
@@ -103,28 +102,5 @@ def main_image(pattern, platform):
         pattern.source.b.eq(Bm[:8]),
     ]
 
-# soc = fpgatoy.BaseSoC(main_image)
 
-# builder = Builder(soc)
-# builder.build(compress=True)
-
-# prog = soc.platform.create_programmer()
-# prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
-
-
-from litex.build.sim.config import SimConfig
-
-sys_clk_freq = int(25e6)
-sim_config   = SimConfig()
-sim_config.add_clocker("sys_clk", freq_hz=sys_clk_freq)
-sim_config.add_module("video", "vga")
-
-soc = fpgatoy.SimSoC(main_image)
-
-builder = Builder(soc)
-builder.build(
-    sim_config       = sim_config,
-    interactive      = True,
-    video            = True,
-    # threads          = 4,
-)
+fpgatoy.SimSoC(main_image).run()

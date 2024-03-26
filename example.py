@@ -20,7 +20,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 """
 
 from migen import *
-from litex.soc.integration.builder import Builder
 import fpgatoy
 
 
@@ -38,10 +37,4 @@ def main_image(pattern, platform):
     ]
 
 
-soc = fpgatoy.BaseSoC(main_image)
-
-builder = Builder(soc)
-builder.build(compress=True)
-
-prog = soc.platform.create_programmer()
-prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
+fpgatoy.MySoC(main_image).run()
