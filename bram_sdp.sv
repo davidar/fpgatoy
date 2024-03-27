@@ -1,0 +1,1 @@
+projf-explore/lib/memory/bram_sdp.sv

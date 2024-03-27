@@ -1,0 +1,1 @@
+projf-explore/lib/memory/rom_async.sv
