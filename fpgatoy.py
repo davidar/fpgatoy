@@ -7,7 +7,7 @@ from litex_boards.targets.colorlight_i5 import _CRG as colorlight_i5_CRG
 from litex.gen import LiteXModule
 
 from litex.soc.integration.builder import Builder
-from litex.soc.integration.soc_core import SoCCore
+from litex.soc.integration.soc_core import SoCMini
 from litex.soc.interconnect import stream
 from litex.soc.cores.video import VideoHDMIPHY, VideoTimingGenerator, VideoVGAPHY
 from litex.soc.cores.video import video_data_layout, video_timing_layout
@@ -52,7 +52,7 @@ class Pattern(LiteXModule):
         )
 
 
-class BaseSoC(SoCCore):
+class BaseSoC(SoCMini):
     def __init__(
         self,
         main_image,
@@ -61,13 +61,7 @@ class BaseSoC(SoCCore):
         clock_domain="sys",
         video_timing="640x480@60Hz",
     ):
-        SoCCore.__init__(
-            self,
-            platform,
-            sys_clk_freq,
-            cpu_type=None,
-            with_uart=False,
-        )
+        SoCMini.__init__(self, platform, sys_clk_freq)
 
         try:
             self.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain)
