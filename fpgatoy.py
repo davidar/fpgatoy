@@ -29,39 +29,6 @@ class Led(gpio.GPIOOut):
     pass
 
 
-# Boilerplate based on litex.soc.cores.video.ColorBarsPattern
-class Pattern(LiteXModule):
-    def __init__(self):
-        self.enable = Signal(reset=1)
-        self.vtg_sink = vtg_sink = stream.Endpoint(video_timing_layout)
-        self.source = source = stream.Endpoint(video_data_layout)
-
-        self.fcount = Signal(16)
-
-        enable = Signal()
-        self.specials += MultiReg(self.enable, enable)
-
-        fsm = FSM(reset_state="IDLE")
-        fsm = ResetInserter()(fsm)
-        self.fsm = fsm
-        self.comb += fsm.reset.eq(~self.enable)
-        newframe = (vtg_sink.hcount == 0) & (vtg_sink.vcount == 0)
-        fsm.act(
-            "IDLE",
-            NextValue(self.fcount, 0),
-            vtg_sink.ready.eq(1),
-            If(
-                vtg_sink.valid & vtg_sink.first & newframe,
-                vtg_sink.ready.eq(0),
-                NextState("RUN"),
-            ),
-        )
-        fsm.act(
-            "RUN",
-            If(vtg_sink.ready & newframe, NextValue(self.fcount, self.fcount + 1)),
-        )
-
-
 class BaseSoC(SoCMini):
     platform: GenericPlatform
     sys_clk_freq: int
@@ -84,25 +51,45 @@ class BaseSoC(SoCMini):
         self.add_csr("user_input")
 
         try:
-            self.videophy = VideoHDMIPHY(self.platform.request("gpdi"), clock_domain)
+            self.video = VideoHDMIPHY(self.platform.request("gpdi"), clock_domain)
         except:
-            self.videophy = VideoVGAPHY(self.platform.request("vga"), clock_domain)
+            self.video = VideoVGAPHY(self.platform.request("vga"), clock_domain)
 
-        pattern_vtg = VideoTimingGenerator(video_timing)
+        self.vtg = VideoTimingGenerator(video_timing)
         if clock_domain != "sys":
-            pattern_vtg = ClockDomainsRenamer(clock_domain)(pattern_vtg)
-        self.add_module("pattern_vtg", pattern_vtg)
+            self.vtg = ClockDomainsRenamer(clock_domain)(self.vtg)
 
-        self.pattern = Pattern()
-        self.pattern.comb += main_image(self)
-        if clock_domain != "sys":
-            self.pattern = ClockDomainsRenamer(clock_domain)(self.pattern)
-        # self.add_module("pattern", self.pattern)
+        # self.pattern = Pattern()
+        self.enable = Signal(reset=1)
+        self.source = stream.Endpoint(video_data_layout)
 
-        self.comb += [
-            pattern_vtg.source.connect(self.pattern.vtg_sink),
-            self.pattern.source.connect(self.videophy.sink),
-        ]
+        self.fcount = Signal(16)
+
+        enable = Signal()
+        self.specials += MultiReg(self.enable, enable)
+
+        fsm = FSM(reset_state="IDLE")
+        fsm = ResetInserter()(fsm)
+        self.fsm = fsm
+        self.comb += fsm.reset.eq(~self.enable)
+        newframe = (self.vtg.source.hcount == 0) & (self.vtg.source.vcount == 0)
+        fsm.act(
+            "IDLE",
+            NextValue(self.fcount, 0),
+            self.vtg.source.ready.eq(1),
+            If(
+                self.vtg.source.valid & self.vtg.source.first & newframe,
+                self.vtg.source.ready.eq(0),
+                NextState("RUN"),
+            ),
+        )
+        fsm.act(
+            "RUN",
+            If(self.vtg.source.ready & newframe, NextValue(self.fcount, self.fcount + 1)),
+        )
+        self.comb += main_image(self)
+        # if clock_domain != "sys":
+        #     self.pattern = ClockDomainsRenamer(clock_domain)(self.pattern)
 
 
 class MySoC(BaseSoC):

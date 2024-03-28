@@ -25,17 +25,17 @@ import fpgatoy
 
 @fpgatoy.MySoC
 def main_image(self):
-    x = self.pattern.vtg_sink.hcount
-    y = self.pattern.vtg_sink.vcount
-    t = self.pattern.fcount
+    x = self.vtg.source.hcount
+    y = self.vtg.source.vcount
+    t = self.fcount
     return [
-        self.pattern.vtg_sink.connect(
-            self.pattern.source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
+        self.vtg.source.connect(
+            self.video.sink, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
         ),
-        self.pattern.source.r.eq(t + (x >> 3) + 0),
-        self.pattern.source.g.eq(t + (y >> 3) + 160),
-        # pattern.source.b.eq(t + (x >> 3) + 320),
-        self.pattern.source.b.eq(self.user_input.storage),
+        self.video.sink.r.eq(t + (x >> 3) + 0),
+        self.video.sink.g.eq(t + (y >> 3) + 160),
+        # self.video.sink.b.eq(t + (x >> 3) + 320),
+        self.video.sink.b.eq(self.user_input.storage),
     ]
 
 
