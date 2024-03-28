@@ -23,6 +23,8 @@ from litex.build.io import CRG
 from litex.build.sim.config import SimConfig
 
 import litex.tools.litex_sim as sim
+from litex.tools.remote.comm_uart import CommUART
+from litex.tools.litex_server import RemoteServer
 
 
 class Led(gpio.GPIOOut):
@@ -89,11 +91,10 @@ class MySoC(BaseSoC):
             self._platform, self._sys_clk_freq, with_video_pll=True, pix_clk=25e6
         )
         BaseSoC.__init__(self, main_image, "hdmi")
-
-        ### OPTIONAL ###
-
+        self.init_uart()
         # self.blink()
 
+    def init_uart(self):
         # No CPU, use Serial to control Wishbone bus
         self.submodules.serial_bridge = UARTWishboneBridge(
             self._platform.request("serial"), self._sys_clk_freq
@@ -118,7 +119,14 @@ class MySoC(BaseSoC):
         prog = self._platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
+        self.start_server()
         self.connect()
+
+    def start_server(self, uart_port="/dev/ttyACM0"):
+        comm = CommUART(uart_port)
+        server = RemoteServer(comm, "localhost")
+        server.open()
+        server.start(4)
 
     def connect(self):
         wb = RemoteClient()
