@@ -59,37 +59,7 @@ class BaseSoC(SoCMini):
         if clock_domain != "sys":
             self.vtg = ClockDomainsRenamer(clock_domain)(self.vtg)
 
-        # self.pattern = Pattern()
-        self.enable = Signal(reset=1)
-        self.source = stream.Endpoint(video_data_layout)
-
-        self.fcount = Signal(16)
-
-        enable = Signal()
-        self.specials += MultiReg(self.enable, enable)
-
-        fsm = FSM(reset_state="IDLE")
-        fsm = ResetInserter()(fsm)
-        self.fsm = fsm
-        self.comb += fsm.reset.eq(~self.enable)
-        newframe = (self.vtg.source.hcount == 0) & (self.vtg.source.vcount == 0)
-        fsm.act(
-            "IDLE",
-            NextValue(self.fcount, 0),
-            self.vtg.source.ready.eq(1),
-            If(
-                self.vtg.source.valid & self.vtg.source.first & newframe,
-                self.vtg.source.ready.eq(0),
-                NextState("RUN"),
-            ),
-        )
-        fsm.act(
-            "RUN",
-            If(self.vtg.source.ready & newframe, NextValue(self.fcount, self.fcount + 1)),
-        )
-        self.comb += main_image(self)
-        # if clock_domain != "sys":
-        #     self.pattern = ClockDomainsRenamer(clock_domain)(self.pattern)
+        main_image(self)
 
 
 class MySoC(BaseSoC):

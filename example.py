@@ -27,8 +27,15 @@ import fpgatoy
 def main_image(self):
     x = self.vtg.source.hcount
     y = self.vtg.source.vcount
-    t = self.fcount
-    return [
+    t = Signal(16)
+    self.sync += If(
+        self.vtg.source.ready
+        & (self.vtg.source.hcount == 0)
+        & (self.vtg.source.vcount == 0),
+        t.eq(t + 1),
+    )
+    self.comb += [
+        # self.vtg.source.ready.eq(1),
         self.vtg.source.connect(
             self.video.sink, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
         ),
