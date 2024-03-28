@@ -80,6 +80,9 @@ class BaseSoC(SoCMini):
             ident_version=True,
         )
 
+        self.user_input = CSRStorage(8)
+        self.add_csr("user_input")
+
         try:
             self.videophy = VideoHDMIPHY(self.platform.request("gpdi"), clock_domain)
         except:
@@ -109,7 +112,6 @@ class MySoC(BaseSoC):
         self.crg = colorlight_i5_CRG(
             self.platform, self.sys_clk_freq, with_video_pll=True, pix_clk=25e6
         )
-        self.user_input = CSRStorage(8)
         BaseSoC.__init__(self, main_image, "hdmi")
 
         ### OPTIONAL ###
@@ -126,8 +128,6 @@ class MySoC(BaseSoC):
         user_leds = Cat(*[self.platform.request("user_led_n", i) for i in range(1)])
         self.submodules.leds = Led(user_leds)
         self.add_csr("leds")
-
-        self.add_csr("user_input")
 
     def blink(self):
         led = self.platform.request("user_led_n", 0)
@@ -160,10 +160,10 @@ class MySoC(BaseSoC):
             try:
                 wb.regs.leds_out.write(0)
                 # wb.regs.main_user_input.write(0)
-                time.sleep(0.1)
-                wb.regs.leds_out.write(1)
+                # time.sleep(0.1)
+                # wb.regs.leds_out.write(1)
                 # wb.regs.main_user_input.write(1)
-                time.sleep(0.1)
+                # time.sleep(0.1)
                 n = int(input("Enter a number: "))
                 wb.regs.main_user_input.write(n)
             except KeyboardInterrupt:
@@ -174,14 +174,14 @@ class MySoC(BaseSoC):
 
 class SimSoC(BaseSoC):
     def __init__(self, main_image):
-        self.sys_clk_freq = 1e6
+        self.sys_clk_freq = int(25e6)
         self.platform = sim.Platform()
         self.crg = CRG(self.platform.request("sys_clk"))
         BaseSoC.__init__(self, main_image)
 
     def run(self):
         sim_config = SimConfig()
-        sim_config.add_clocker("sys_clk", 1e6)
+        sim_config.add_clocker("sys_clk", self.sys_clk_freq)
         sim_config.add_module("video", "vga")
 
         builder = Builder(self)
