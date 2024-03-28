@@ -7,7 +7,7 @@ import fpgatoy
 @fpgatoy.SimSoC
 def main_image(self):
     self.connect_video()
-    self.platform.add_source("flag_sweden.sv")
+    self.add_sources("flag_sweden.sv")
     paint_r = Signal(4)
     paint_g = Signal(4)
     paint_b = Signal(4)

@@ -7,7 +7,7 @@ import os
 
 def main_image(self):
     self.connect_video("ready")
-    self.platform.add_source("rt/RTCore.v")
+    self.add_sources("rt/RTCore.v")
     self.specials += Instance(
         "RTCore",
         i_clk=ClockSignal(),

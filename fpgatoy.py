@@ -30,8 +30,8 @@ class Led(gpio.GPIOOut):
 
 
 class BaseSoC(SoCMini):
-    platform: GenericPlatform
-    sys_clk_freq: int
+    _platform: GenericPlatform
+    _sys_clk_freq: int
 
     def __init__(
         self,
@@ -41,8 +41,8 @@ class BaseSoC(SoCMini):
     ):
         SoCMini.__init__(
             self,
-            self.platform,
-            self.sys_clk_freq,
+            self._platform,
+            self._sys_clk_freq,
             ident="fpgatoy SoC",
             ident_version=True,
         )
@@ -51,9 +51,9 @@ class BaseSoC(SoCMini):
         self.add_csr("user_input")
 
         try:
-            self.video = VideoHDMIPHY(self.platform.request("gpdi"), clock_domain)
+            self.video = VideoHDMIPHY(self._platform.request("gpdi"), clock_domain)
         except:
-            self.video = VideoVGAPHY(self.platform.request("vga"), clock_domain)
+            self.video = VideoVGAPHY(self._platform.request("vga"), clock_domain)
 
         self.vtg = VideoTimingGenerator(video_timing)
         if clock_domain != "sys":
@@ -76,13 +76,17 @@ class BaseSoC(SoCMini):
             args = ("valid", "ready", "last", "de", "hsync", "vsync")
         self.comb += self.vtg.source.connect(self.video.sink, keep=set(args))
 
+    def add_sources(self, *args):
+        for arg in args:
+            self._platform.add_source(arg)
+
 
 class MySoC(BaseSoC):
     def __init__(self, main_image):
-        self.sys_clk_freq = int(25e6)
-        self.platform = colorlight_i5.Platform("i9", "7.2")
+        self._sys_clk_freq = int(25e6)
+        self._platform = colorlight_i5.Platform("i9", "7.2")
         self.crg = colorlight_i5_CRG(
-            self.platform, self.sys_clk_freq, with_video_pll=True, pix_clk=25e6
+            self._platform, self._sys_clk_freq, with_video_pll=True, pix_clk=25e6
         )
         BaseSoC.__init__(self, main_image, "hdmi")
 
@@ -92,17 +96,17 @@ class MySoC(BaseSoC):
 
         # No CPU, use Serial to control Wishbone bus
         self.submodules.serial_bridge = UARTWishboneBridge(
-            self.platform.request("serial"), self.sys_clk_freq
+            self._platform.request("serial"), self._sys_clk_freq
         )
         self.bus.add_master(master=self.serial_bridge.wishbone)
 
         # Led
-        user_leds = Cat(*[self.platform.request("user_led_n", i) for i in range(1)])
+        user_leds = Cat(*[self._platform.request("user_led_n", i) for i in range(1)])
         self.submodules.leds = Led(user_leds)
         self.add_csr("leds")
 
     def blink(self):
-        led = self.platform.request("user_led_n", 0)
+        led = self._platform.request("user_led_n", 0)
         counter = Signal(26)
         self.comb += led.eq(counter[25])
         self.sync += counter.eq(counter + 1)
@@ -111,7 +115,7 @@ class MySoC(BaseSoC):
         builder = Builder(self, csr_csv="csr.csv")
         builder.build(compress=True)
 
-        prog = self.platform.create_programmer()
+        prog = self._platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
         self.connect()
@@ -146,14 +150,14 @@ class MySoC(BaseSoC):
 
 class SimSoC(BaseSoC):
     def __init__(self, main_image):
-        self.sys_clk_freq = int(25e6)
-        self.platform = sim.Platform()
-        self.crg = CRG(self.platform.request("sys_clk"))
+        self._sys_clk_freq = int(25e6)
+        self._platform = sim.Platform()
+        self.crg = CRG(self._platform.request("sys_clk"))
         BaseSoC.__init__(self, main_image)
 
     def run(self):
         sim_config = SimConfig()
-        sim_config.add_clocker("sys_clk", self.sys_clk_freq)
+        sim_config.add_clocker("sys_clk", self._sys_clk_freq)
         sim_config.add_module("video", "vga")
 
         builder = Builder(self)

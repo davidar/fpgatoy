@@ -9,11 +9,13 @@ import os
 # @fpgatoy.MySoC
 def main_image(self):
     self.connect_video()
-    self.platform.add_source("projf-explore/lib/display/clut_simple.sv")
-    self.platform.add_source("projf-explore/graphics/hardware-sprites/sprite.sv")
-    self.platform.add_source("bram_sdp.sv")
-    self.platform.add_source("rom_async.sv")
-    self.platform.add_source("hedgehog.sv")
+    self.add_sources(
+        "projf-explore/lib/display/clut_simple.sv",
+        "projf-explore/graphics/hardware-sprites/sprite.sv",
+        "bram_sdp.sv",
+        "rom_async.sv",
+        "hedgehog.sv",
+    )
     paint_r = Signal(4)
     paint_g = Signal(4)
     paint_b = Signal(4)

@@ -7,7 +7,7 @@ import fpgatoy
 @fpgatoy.SimSoC
 def main_image(self):
     self.connect_video()
-    self.platform.add_source("vgatestsrc.v")
+    self.add_sources("vgatestsrc.v")
     pixel = Signal(24)
     self.specials += Instance(
         "vgatestsrc",
