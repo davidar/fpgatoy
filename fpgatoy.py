@@ -73,8 +73,8 @@ class BaseSoC(SoCMini):
 
     def connect_video(self, *args):
         if not args:
-            args = {"valid", "ready", "last", "de", "hsync", "vsync"}
-        self.comb += self.vtg.source.connect(self.video.sink, keep=args)
+            args = ("valid", "ready", "last", "de", "hsync", "vsync")
+        self.comb += self.vtg.source.connect(self.video.sink, keep=set(args))
 
 
 class MySoC(BaseSoC):

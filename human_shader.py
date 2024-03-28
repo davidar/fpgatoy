@@ -9,18 +9,17 @@
 from migen import *
 import fpgatoy
 
-def main_image(pattern, platform):
+@fpgatoy.SimSoC
+def main_image(self):
+    self.connect_video()
     x, y, u, v, u2, v2, h, t, p, q, w0, R0, B0, o, R1, B1, w1, r, d, R2, B2, p1, c, o1, o2, R3, B3, c1, Ro, Bo, Rm, Bm, Go = [
         Signal((32, True), name) for name in [
             "x", "y", "u", "v", "u2", "v2", "h", "t", "p", "q", "w0", "R0", "B0", "o", "R1", "B1", "w1", "r", "d", "R2", "B2", "p1", "c", "o1", "o2", "R3", "B3", "c1", "Ro", "Bo", "Rm", "Bm", "Go"
         ]
     ]
     return [
-        pattern.vtg_sink.connect(
-            pattern.source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
-        ),
-        x.eq(pattern.vtg_sink.hcount[3:] - 5),
-        y.eq(pattern.vtg_sink.vcount[3:] - 10),
+        x.eq(self.vtg.source.hcount[3:] - 5),
+        y.eq(self.vtg.source.vcount[3:] - 10),
         u.eq(x - 36),
         v.eq(18 - y),
         u2.eq(u * u),
@@ -97,10 +96,10 @@ def main_image(pattern, platform):
             Bm.eq(Bo)
         ),
         Go.eq((Rm*11 + 5*Bm)>>4),
-        pattern.source.r.eq(Rm[:8]),
-        pattern.source.g.eq(Go[:8]),
-        pattern.source.b.eq(Bm[:8]),
+        self.video.sink.r.eq(Rm[:8]),
+        self.video.sink.g.eq(Go[:8]),
+        self.video.sink.b.eq(Bm[:8]),
     ]
 
 
-fpgatoy.SimSoC(main_image).run()
+main_image.run()
