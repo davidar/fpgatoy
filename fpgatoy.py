@@ -59,7 +59,22 @@ class BaseSoC(SoCMini):
         if clock_domain != "sys":
             self.vtg = ClockDomainsRenamer(clock_domain)(self.vtg)
 
-        main_image(self)
+        self.comb += main_image(self)
+
+    def frame_counter(self, bits=16):
+        t = Signal(bits)
+        self.sync += If(
+            self.vtg.source.ready
+            & (self.vtg.source.hcount == 0)
+            & (self.vtg.source.vcount == 0),
+            t.eq(t + 1),
+        )
+        return t
+
+    def connect_video(self, *args):
+        if not args:
+            args = {"valid", "ready", "last", "de", "hsync", "vsync"}
+        self.comb += self.vtg.source.connect(self.video.sink, keep=args)
 
 
 class MySoC(BaseSoC):

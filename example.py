@@ -25,20 +25,11 @@ import fpgatoy
 
 @fpgatoy.MySoC
 def main_image(self):
+    self.connect_video()
     x = self.vtg.source.hcount
     y = self.vtg.source.vcount
-    t = Signal(16)
-    self.sync += If(
-        self.vtg.source.ready
-        & (self.vtg.source.hcount == 0)
-        & (self.vtg.source.vcount == 0),
-        t.eq(t + 1),
-    )
-    self.comb += [
-        # self.vtg.source.ready.eq(1),
-        self.vtg.source.connect(
-            self.video.sink, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
-        ),
+    t = self.frame_counter()
+    return [
         self.video.sink.r.eq(t + (x >> 3) + 0),
         self.video.sink.g.eq(t + (y >> 3) + 160),
         # self.video.sink.b.eq(t + (x >> 3) + 320),
