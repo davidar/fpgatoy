@@ -23,18 +23,20 @@ from migen import *
 import fpgatoy
 
 
-def main_image(pattern, platform):
-    x = pattern.vtg_sink.hcount
-    y = pattern.vtg_sink.vcount
-    t = pattern.fcount
+@fpgatoy.MySoC
+def main_image(self):
+    x = self.pattern.vtg_sink.hcount
+    y = self.pattern.vtg_sink.vcount
+    t = self.pattern.fcount
     return [
-        pattern.vtg_sink.connect(
-            pattern.source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
+        self.pattern.vtg_sink.connect(
+            self.pattern.source, keep={"valid", "ready", "last", "de", "hsync", "vsync"}
         ),
-        pattern.source.r.eq(t + (x >> 3) + 0),
-        pattern.source.g.eq(t + (y >> 3) + 160),
-        pattern.source.b.eq(t + (x >> 3) + 320),
+        self.pattern.source.r.eq(t + (x >> 3) + 0),
+        self.pattern.source.g.eq(t + (y >> 3) + 160),
+        # pattern.source.b.eq(t + (x >> 3) + 320),
+        self.pattern.source.b.eq(self.user_input.storage),
     ]
 
 
-fpgatoy.MySoC(main_image).run()
+main_image.run()

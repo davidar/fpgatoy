@@ -12,6 +12,7 @@ from litex.gen import LiteXModule
 from litex.soc.integration.builder import Builder
 from litex.soc.integration.soc_core import SoCMini
 from litex.soc.interconnect import stream
+from litex.soc.interconnect.csr import CSRStorage
 from litex.soc.cores.video import VideoHDMIPHY, VideoTimingGenerator, VideoVGAPHY
 from litex.soc.cores.video import video_data_layout, video_timing_layout
 from litex.soc.cores.uart import UARTWishboneBridge
@@ -62,52 +63,54 @@ class Pattern(LiteXModule):
 
 
 class BaseSoC(SoCMini):
+    platform: GenericPlatform
+    sys_clk_freq: int
+
     def __init__(
         self,
         main_image,
-        platform: GenericPlatform,
-        sys_clk_freq: int,
         clock_domain="sys",
         video_timing="640x480@60Hz",
     ):
         SoCMini.__init__(
             self,
-            platform,
-            sys_clk_freq,
+            self.platform,
+            self.sys_clk_freq,
             ident="fpgatoy SoC",
             ident_version=True,
         )
 
         try:
-            self.videophy = VideoHDMIPHY(platform.request("gpdi"), clock_domain)
+            self.videophy = VideoHDMIPHY(self.platform.request("gpdi"), clock_domain)
         except:
-            self.videophy = VideoVGAPHY(platform.request("vga"), clock_domain)
+            self.videophy = VideoVGAPHY(self.platform.request("vga"), clock_domain)
 
         pattern_vtg = VideoTimingGenerator(video_timing)
         if clock_domain != "sys":
             pattern_vtg = ClockDomainsRenamer(clock_domain)(pattern_vtg)
         self.add_module("pattern_vtg", pattern_vtg)
 
-        pattern = Pattern()
-        pattern.comb += main_image(pattern, platform)
+        self.pattern = Pattern()
+        self.pattern.comb += main_image(self)
         if clock_domain != "sys":
-            pattern = ClockDomainsRenamer(clock_domain)(pattern)
-        self.add_module("pattern", pattern)
+            self.pattern = ClockDomainsRenamer(clock_domain)(self.pattern)
+        # self.add_module("pattern", self.pattern)
 
         self.comb += [
-            pattern_vtg.source.connect(pattern.vtg_sink),
-            pattern.source.connect(self.videophy.sink),
+            pattern_vtg.source.connect(self.pattern.vtg_sink),
+            self.pattern.source.connect(self.videophy.sink),
         ]
 
 
 class MySoC(BaseSoC):
     def __init__(self, main_image):
-        sys_clk_freq = int(25e6)
-        platform = colorlight_i5.Platform("i9", "7.2")
+        self.sys_clk_freq = int(25e6)
+        self.platform = colorlight_i5.Platform("i9", "7.2")
         self.crg = colorlight_i5_CRG(
-            platform, sys_clk_freq, with_video_pll=True, pix_clk=25e6
+            self.platform, self.sys_clk_freq, with_video_pll=True, pix_clk=25e6
         )
-        BaseSoC.__init__(self, main_image, platform, sys_clk_freq, "hdmi")
+        self.user_input = CSRStorage(8)
+        BaseSoC.__init__(self, main_image, "hdmi")
 
         ### OPTIONAL ###
 
@@ -115,14 +118,16 @@ class MySoC(BaseSoC):
 
         # No CPU, use Serial to control Wishbone bus
         self.submodules.serial_bridge = UARTWishboneBridge(
-            platform.request("serial"), sys_clk_freq
+            self.platform.request("serial"), self.sys_clk_freq
         )
         self.bus.add_master(master=self.serial_bridge.wishbone)
 
         # Led
-        user_leds = Cat(*[platform.request("user_led_n", i) for i in range(1)])
+        user_leds = Cat(*[self.platform.request("user_led_n", i) for i in range(1)])
         self.submodules.leds = Led(user_leds)
         self.add_csr("leds")
+
+        self.add_csr("user_input")
 
     def blink(self):
         led = self.platform.request("user_led_n", 0)
@@ -154,9 +159,13 @@ class MySoC(BaseSoC):
         while True:
             try:
                 wb.regs.leds_out.write(0)
+                # wb.regs.main_user_input.write(0)
                 time.sleep(0.1)
                 wb.regs.leds_out.write(1)
+                # wb.regs.main_user_input.write(1)
                 time.sleep(0.1)
+                n = int(input("Enter a number: "))
+                wb.regs.main_user_input.write(n)
             except KeyboardInterrupt:
                 break
 
@@ -165,9 +174,10 @@ class MySoC(BaseSoC):
 
 class SimSoC(BaseSoC):
     def __init__(self, main_image):
-        platform = sim.Platform()
-        self.crg = CRG(platform.request("sys_clk"))
-        BaseSoC.__init__(self, main_image, platform, 1e6)
+        self.sys_clk_freq = 1e6
+        self.platform = sim.Platform()
+        self.crg = CRG(self.platform.request("sys_clk"))
+        BaseSoC.__init__(self, main_image)
 
     def run(self):
         sim_config = SimConfig()
