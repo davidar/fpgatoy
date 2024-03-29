@@ -9,6 +9,7 @@ demo = sys.argv[1]
 latencies = {
     "vga_circles": 9,
     "vga_humanshader": 20,
+    "vga_mc": 48,
     "vga_msponge": 136,
 }
 

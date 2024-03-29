@@ -276,14 +276,7 @@ $$end
 
     ->
 
-// $$if DE10NANO then
           pix_r = clr_r; pix_g = clr_g; pix_b = clr_b;
-// $$else
-//           uint4 dth_r = bayer_4x4[ { y[0,2] , x[0,2] } ] < clr_r[0,4] ? (clr_r[4,4]+1) : clr_r[4,4];
-//           uint4 dth_g = bayer_4x4[ { x[0,2] , y[0,2] } ] < clr_g[0,4] ? (clr_g[4,4]+1) : clr_g[4,4];
-//           uint4 dth_b = bayer_4x4[ { y[0,2] , x[0,2] } ] < clr_b[0,4] ? (clr_b[4,4]+1) : clr_b[4,4];
-//           pix_r       = {dth_r,2b0}; pix_g = {dth_g,2b0}; pix_b = {dth_b,2b0};
-// $$end
 
         // ----- pipeline ends here -----
 

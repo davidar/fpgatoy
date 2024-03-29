@@ -7,4 +7,5 @@ $(SILICE_DIR)/silice:
 %.si.v: $(SILICE_DIR)/silice %.si
 	$^ --output $@ --export frame_display \
 		--frameworks_dir Silice/frameworks/ \
-		--framework Silice/frameworks/boards/bare/bare.v
+		--framework Silice/frameworks/boards/bare/bare.v \
+		$(if $(SIMULATION),-P SIMULATION=1)
