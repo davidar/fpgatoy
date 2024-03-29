@@ -1,7 +1,10 @@
-SILICE_DIR = $(HOME)/git/Silice
-SILICE = $(SILICE_DIR)/BUILD/build-silice/silice
+SILICE_DIR = Silice/BUILD/build-silice
 
-%.si.v: %.si
-	$(SILICE) $< --output $@ --export frame_display \
-		--frameworks_dir $(SILICE_DIR)/frameworks/ \
-		--framework $(SILICE_DIR)/frameworks/boards/bare/bare.v
+$(SILICE_DIR)/silice:
+	git submodule update --init --recursive
+	mkdir -p $(SILICE_DIR) && cd $(SILICE_DIR) && cmake ../.. && make -j$(nproc)
+
+%.si.v: $(SILICE_DIR)/silice %.si
+	$^ --output $@ --export frame_display \
+		--frameworks_dir Silice/frameworks/ \
+		--framework Silice/frameworks/boards/bare/bare.v

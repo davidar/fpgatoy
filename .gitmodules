@@ -7,3 +7,6 @@
 [submodule "raybox-zero"]
 	path = raybox-zero
 	url = https://github.com/algofoogle/raybox-zero.git
+[submodule "Silice"]
+	path = Silice
+	url = https://github.com/sylefeb/Silice.git
