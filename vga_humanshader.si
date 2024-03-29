@@ -15,9 +15,6 @@
 
 // SL 2024-01-22 Silice port from https://www.shadertoy.com/view/XflXDs
 
-$$VGA_640_480 = 1
-$$delay       = 27338
-
 //_ default to 640x480@60 (25MHz pixel clock)
 $$  H_FRT_PORCH = 16
 $$  H_SYNCH     = 96
@@ -41,56 +38,19 @@ $$V_END    = V_FRT_PORCH + V_SYNCH + V_BCK_PORCH + V_RES
 
 // -------------------------
 
-// NOTE: the design entry point is 'main' in 'vga_demo_main.si'
-
-unit frame_display(
+algorithm frame_display(
   input   uint11 pix_x,       input   uint11 pix_y,
   input   uint1  pix_active,  input   uint1  pix_vblank,
   input   uint1  vga_hs,      input   uint1  vga_vs,
-  output! uint$color_depth$ pix_r,
-  output! uint$color_depth$ pix_g,
-  output! uint$color_depth$ pix_b
-) {
-
-  // --- always_before block, performed every cycle before anything else
-  always_before {
-    pix_r = 0; pix_g = 0; pix_b = 0; // maintain RGB at zero, important during
-  }                                  // vga blanking for screen to adjust
-
-  // --- algorithm block, contains the pipeline in an infinite loop
-  //     feeding it with pixels
-  algorithm <autorun> {
-
+  output! uint8 pix_r,
+  output! uint8 pix_g,
+  output! uint8 pix_b
+) <autorun> {
     while (1) { // forever
-
-      // ===== Here we synch the pipeline with the vertical sync.
-      //       The pipeline starts during vblank so latency is hidden and
-      //       the first pixel is ready exactly at the right moment.
-      while (~vga_vs) {}
-      while ( vga_vs) {}
-
-      // Wait the 'perfect' delay (obtained in simulation, see marker [1] below)
-      // (adjust delay if number of steps is changed).
-      uint17 wait = 0; while (wait != $delay$) { wait = wait + 1; }
-
-      // ----- start the pipeline! -----
-      // This loop feeds pixel coordinates to the pipeline, the pipeline outputs
-      // pixels directly into the VGA module in the last stage. The delay above
-      // (while (wait ...)) is just right so that the first pixel exits the
-      // pipeline zhen it is needed.
-      // Note that the pipeline computes value for entire VGA rows including
-      // during h-sync, but these pixels in h-sync are discarded (I found it
-      // simpler to do that, and it uses slightly less logic).
-      uint12 px = -1; uint12 py = -1;
-      while ( ! (px == $H_END-1$ && py == $V_RES-1$) ) {
-
         // ----- pipeline starts here -----
 
-        int16 x = px >> 3;
-        int16 y = py >> 3;
-        // increment pixel coordinates
-        py = px == $H_END-1$ ? (py + 1) : py;
-        px = px == $H_END-1$ ? 0 : (px + 1);
+        int16 x = pix_x >> 3;
+        int16 y = pix_y >> 3;
 
       ->  // --- next pipeline stage
 
@@ -251,21 +211,9 @@ unit frame_display(
 
       ->  // --- next pipeline stage
 
-$$if SIMULATION then
-        // to verify/adjust pixel synch [1]
-        if (pix_y == 0) {
-          __display("x = %d  pix_x = %d (diff: %d)",px,pix_x,__signed(px-pix_x));
-          __display("y = %d  pix_y = %d (diff: %d)",py,pix_y,__signed(py-pix_y));
-        }
-$$end
-
-        if (px < $H_RES$) { // do not produce color out of bound, screen may
+        if (pix_x < $H_RES$) { // do not produce color out of bound, screen may
                             // otherwise produce weird color artifacts
           pix_r = r; pix_g = g; pix_b = b;
         }
-
-      }
-
     }
-  }
 }
