@@ -166,13 +166,13 @@ class SimSoC(BaseSoC):
     def run(self):
         sim_config = SimConfig()
         sim_config.add_clocker("sys_clk", self._sys_clk_freq)
-        sim_config.add_module("video", "vga")
+        sim_config.add_module("video", "vga", args={"render_on_vsync": True})
 
         builder = Builder(self)
         builder.build(
             sim_config=sim_config,
             interactive=True,
             video=True,
-            opt_level="O1",
+            opt_level="O3",
             # threads=4,
         )
