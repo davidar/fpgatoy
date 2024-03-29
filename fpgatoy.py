@@ -73,10 +73,22 @@ class BaseSoC(SoCMini):
         )
         return t
 
-    def connect_video(self, *args):
-        if not args:
-            args = ("valid", "ready", "last", "de", "hsync", "vsync")
-        self.comb += self.vtg.source.connect(self.video.sink, keep=set(args))
+    def connect_video(self, *args, latency=0):
+        if args:
+            keep = set(args)
+        else:
+            keep = {"valid", "ready", "last", "de", "hsync", "vsync"}
+
+        if latency > 0:
+            # Timing delay line.
+            timing_bufs = [stream.Buffer(video_timing_layout) for _ in range(latency)]
+            self.comb += self.vtg.source.connect(timing_bufs[0].sink)
+            for i in range(len(timing_bufs) - 1):
+                self.comb += timing_bufs[i].source.connect(timing_bufs[i+1].sink)
+            self.comb += timing_bufs[-1].source.connect(self.video.sink, keep=keep)
+            self.submodules += timing_bufs
+        else:
+            self.comb += self.vtg.source.connect(self.video.sink, keep=keep)
 
     def add_sources(self, *args):
         for arg in args:

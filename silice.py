@@ -7,7 +7,7 @@ import fpgatoy
 @fpgatoy.SimSoC
 # @fpgatoy.MySoC
 def main_image(self):
-    self.connect_video()
+    self.connect_video(latency=20)
     self.add_sources("vga_humanshader.si.v")
     self.specials += Instance(
         "M_frame_display",
