@@ -5,6 +5,7 @@ import fpgatoy
 import os
 
 
+@fpgatoy.SimSoC
 def main_image(self):
     self.connect_video("ready")
     self.add_sources("rt/RTCore.v")
@@ -14,18 +15,13 @@ def main_image(self):
         i_reset=ResetSignal(),
         i_io_pix_x=self.vtg.source.hcount - 320,
         i_io_pix_y=240 - self.vtg.source.vcount,
-        i_io_pixel_in_vsync=(
-            (self.vtg.source.hcount == 0) & (self.vtg.source.vcount == 0)
-        ),
-        i_io_pixel_in_req=(
-            (self.vtg.source.hcount < 640) & (self.vtg.source.vcount < 480)
-        ),
-        i_io_pixel_in_eol=(self.vtg.source.hcount == 639),
+        i_io_pixel_in_vsync=self.vtg.source.vsync,
+        i_io_pixel_in_req=self.vtg.source.de,
         i_io_pixel_in_eof=(
             (self.vtg.source.hcount == 639) & (self.vtg.source.vcount == 479)
         ),
-        i_io_pixel_in_pixel_r=255,
-        i_io_pixel_in_pixel_g=255,
+        i_io_pixel_in_pixel_r=0,
+        i_io_pixel_in_pixel_g=0,
         i_io_pixel_in_pixel_b=0,
         i_io_pixel_in_vtg_valid=self.vtg.source.valid,
         i_io_pixel_in_vtg_last=self.vtg.source.last,
@@ -46,4 +42,4 @@ def main_image(self):
 # so $readmemb works in the simulator
 os.system("mkdir -p build/sim/gateware/ && cp rt/RTCore.v_*.bin build/sim/gateware/")
 
-fpgatoy.SimSoC(main_image).run()
+main_image.run()
