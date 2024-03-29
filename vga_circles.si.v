@@ -63,9 +63,9 @@ reg  [1:0] _t___block_12_clz_r_rhs;
 reg  [1:0] _t___block_12_clz_r_half;
 reg  [35:0] _t___stage___block_21_y;
 reg  [23:0] _t___block_27_invd;
-reg  [0:0] _t___block_31_in_circ;
-reg  [7:0] _t___block_31_comp;
-reg  [7:0] _t___block_31_shaded;
+reg  [0:0] _t___stage___block_28_in_circ;
+reg  [7:0] _t___stage___block_28_comp;
+reg  [7:0] _t___stage___block_28_shaded;
 
 reg  [23:0] _d_frame = 0;
 reg  [23:0] _q_frame = 0;
@@ -335,9 +335,9 @@ _t___block_12_clz_r_rhs = 0;
 _t___block_12_clz_r_half = 0;
 _t___stage___block_21_y = 0;
 _t___block_27_invd = 0;
-_t___block_31_in_circ = 0;
-_t___block_31_comp = 0;
-_t___block_31_shaded = 0;
+_t___stage___block_28_in_circ = 0;
+_t___stage___block_28_comp = 0;
+_t___stage___block_28_shaded = 0;
 // _always_pre
 (* full_case *)
 case (_q__idx_fsm0)
@@ -352,8 +352,8 @@ if (1) begin
 // __block_4
 // --> pipeline __pip_11_1 starts here
 _t__1stdisable_fsm___pip_11_1_0 = 0;
-// __block_39
-// __block_40
+// __block_34
+// __block_35
 _d__idx_fsm0 = 2;
 end else begin
 // __block_3
@@ -697,20 +697,22 @@ end
 case (_q__idx_fsm___pip_11_1_9)
 1: begin
 // __stage___block_28
-if (in_pix_x<640) begin
+_t___stage___block_28_in_circ = (_q___pip_11_1_9___block_27_invd>>6);
+
+_t___stage___block_28_comp = _t___stage___block_28_in_circ ? 255:0;
+
+_t___stage___block_28_shaded = _q___pip_11_1_9___stage___block_6_inv_l>16383||_t___stage___block_28_in_circ ? 0:(255-_q___pip_11_1_9___stage___block_6_inv_l[8+:8]);
+
+_d_pix_r = _t___stage___block_28_shaded;
+
+_d_pix_g = _t___stage___block_28_shaded;
+
+_d_pix_b = _t___stage___block_28_shaded;
+
+if (in_pix_x==0&&in_pix_y==0) begin
 // __block_29
 // __block_31
-_t___block_31_in_circ = (_q___pip_11_1_9___block_27_invd>>6);
-
-_t___block_31_comp = _t___block_31_in_circ ? 255:0;
-
-_t___block_31_shaded = _q___pip_11_1_9___stage___block_6_inv_l>16383||_t___block_31_in_circ ? 0:(255-_q___pip_11_1_9___stage___block_6_inv_l[8+:8]);
-
-_d_pix_r = _t___block_31_shaded;
-
-_d_pix_g = _t___block_31_shaded;
-
-_d_pix_b = _t___block_31_shaded;
+_d_frame = _q_frame+3;
 
 // __block_32
 end else begin
@@ -718,17 +720,6 @@ end else begin
 end
 // 'after'
 // __block_33
-if (in_pix_x==0&&in_pix_y==0) begin
-// __block_34
-// __block_36
-_d_frame = _q_frame+3;
-
-// __block_37
-end else begin
-// __block_35
-end
-// 'after'
-// __block_38
 // end of last pipeline stage
 _d__full_fsm___pip_11_1_9 = 1;
 _d__idx_fsm___pip_11_1_9 = _t__stall_fsm___pip_11_1_9 ? 1 : 0;

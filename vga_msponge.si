@@ -275,8 +275,7 @@ $$end
         uint8  clr_b = (shade[8,8]) + fog;
 
     ->
-        if (pix_x < $H_RES$) { // do not produce color out of bound, screen may
-                           // otherwise produce weird color artifacts
+
 // $$if DE10NANO then
           pix_r = clr_r; pix_g = clr_g; pix_b = clr_b;
 // $$else
@@ -285,7 +284,6 @@ $$end
 //           uint4 dth_b = bayer_4x4[ { y[0,2] , x[0,2] } ] < clr_b[0,4] ? (clr_b[4,4]+1) : clr_b[4,4];
 //           pix_r       = {dth_r,2b0}; pix_g = {dth_g,2b0}; pix_b = {dth_b,2b0};
 // $$end
-        }
 
         // ----- pipeline ends here -----
 

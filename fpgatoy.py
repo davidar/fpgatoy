@@ -82,9 +82,9 @@ class BaseSoC(SoCMini):
         if latency > 0:
             # Timing delay line.
             timing_bufs = [stream.Buffer(video_timing_layout) for _ in range(latency)]
-            self.comb += self.vtg.source.connect(timing_bufs[0].sink)
+            self.comb += self.vtg.source.connect(timing_bufs[0].sink, keep=keep)
             for i in range(len(timing_bufs) - 1):
-                self.comb += timing_bufs[i].source.connect(timing_bufs[i+1].sink)
+                self.comb += timing_bufs[i].source.connect(timing_bufs[i+1].sink, keep=keep)
             self.comb += timing_bufs[-1].source.connect(self.video.sink, keep=keep)
             self.submodules += timing_bufs
         else:

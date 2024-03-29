@@ -15530,12 +15530,12 @@ if (1) begin
 // __block_5
 // --> pipeline __pip_5160_1 starts here
 _t__1stdisable_fsm___pip_5160_1_0 = 0;
-// __block_2743
-// __block_2744
+// __block_2738
+// __block_2739
 _d__idx_fsm0 = 2;
 end else begin
 // __block_4
-// __block_2745
+// __block_2740
 _d__idx_fsm0 = 0;
 _t__1stdisable_fsm___pip_5160_1_0 = 1;
 end
@@ -28964,14 +28964,16 @@ end
 case (_q__idx_fsm___pip_5160_1_136)
 1: begin
 // __stage___block_2732
-if (in_pix_x<640) begin
-// __block_2733
-// __block_2735
 _d_pix_r = _q___pip_5160_1_136___block_2731_clr_r;
 
 _d_pix_g = _q___pip_5160_1_136___block_2731_clr_g;
 
 _d_pix_b = _q___pip_5160_1_136___block_2731_clr_b;
+
+if (in_pix_x==0&&in_pix_y==0) begin
+// __block_2733
+// __block_2735
+_d_frame = (_q_frame-1);
 
 // __block_2736
 end else begin
@@ -28979,17 +28981,6 @@ end else begin
 end
 // 'after'
 // __block_2737
-if (in_pix_x==0&&in_pix_y==0) begin
-// __block_2738
-// __block_2740
-_d_frame = (_q_frame-1);
-
-// __block_2741
-end else begin
-// __block_2739
-end
-// 'after'
-// __block_2742
 // end of last pipeline stage
 _d__full_fsm___pip_5160_1_136 = 1;
 _d__idx_fsm___pip_5160_1_136 = _t__stall_fsm___pip_5160_1_136 ? 1 : 0;
