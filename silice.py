@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
 
+import sys
 from migen import *
 import fpgatoy
+
+
+demo = sys.argv[1]
+latencies = {
+    "vga_circles": 9,
+    "vga_humanshader": 20,
+    "vga_msponge": 136,
+}
 
 
 @fpgatoy.SimSoC
 # @fpgatoy.MySoC
 def main_image(self):
-    self.connect_video(latency=20)
-    self.add_sources("vga_humanshader.si.v")
+    self.connect_video(latency=latencies.get(demo, 0))
+    self.add_sources(demo + ".si.v")
     self.specials += Instance(
         "M_frame_display",
         i_clock=ClockSignal(),

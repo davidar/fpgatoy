@@ -1,0 +1,67 @@
+// SL 2022-10-14
+//
+// MIT license, see LICENSE_MIT in Silice repo root
+// https://github.com/sylefeb/Silice
+
+// Implements a pipeline rendering a tunnel with a pilelined
+// inverse square root.
+//
+
+$include('vga.si')
+
+$include('Silice/projects/rsqrt/rsqrt.si')
+
+// ----------------------------------------------------------------------------
+// display unit
+// ----------------------------------------------------------------------------
+
+algorithm frame_display(
+  input   uint11 pix_x,       input   uint11 pix_y,
+  input   uint1  pix_active,  input   uint1  pix_vblank,
+  input   uint1  vga_hs,      input   uint1  vga_vs,
+  output! uint8 pix_r,
+  output! uint8 pix_g,
+  output! uint8 pix_b
+) <autorun> {
+
+    uint24 frame(0);
+
+    while (1) { // forever
+
+        // ----- pipeline starts here -----
+
+        int24 view_x = ((__signed(pix_x) - __signed(24d$H_RES>>1$)));
+        int24 view_y = ((__signed(pix_y) - __signed(24d$V_RES>>1$)));
+
+    ->  // --- next pipeline stage
+
+      uint24 lsq = (view_x*view_x + view_y*view_y) >> 2;
+      uint24 inv_l(0);
+
+      // instantiates pipelined rsqrt
+    (inv_l) = c_rsqrt<Fp=12,newton_iters=5>(lsq);
+      //                                ^^ more iterations for quality
+      //                                   (adds latency, we can afford it!)
+
+       uint24 invd = (inv_l >> 4) + frame;
+
+    ->
+
+        if (pix_x < $H_RES$) { // do not produce color out of bound, screen may
+                          // otherwise produce weird color artifacts
+          uint1  in_circ = (invd >> 6);
+          uint8  comp    = in_circ ? 255 : 0;
+          uint8 shaded   = inv_l > 16383 || in_circ ? 0 : (255-inv_l[8,8]);
+          pix_r = shaded;
+          pix_g = shaded;
+          pix_b = shaded;
+        }
+
+        // ----- pipeline ends here -----
+
+        if (pix_x == 0 && pix_y == 0) {
+          frame = frame + 3;
+        }
+
+    } // while (1)
+}
