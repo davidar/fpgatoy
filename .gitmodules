@@ -4,3 +4,6 @@
 [submodule "projf-explore"]
 	path = projf-explore
 	url = https://github.com/projf/projf-explore.git
+[submodule "raybox-zero"]
+	path = raybox-zero
+	url = https://github.com/algofoogle/raybox-zero.git
