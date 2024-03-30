@@ -1,5 +1,7 @@
 /csr.csv
 *.lpp
+*.o
+*.cf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

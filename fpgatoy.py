@@ -61,7 +61,9 @@ class BaseSoC(SoCMini):
         if clock_domain != "sys":
             self.vtg = ClockDomainsRenamer(clock_domain)(self.vtg)
 
-        self.comb += main_image(self)
+        res = main_image(self)
+        if res is not None:
+            self.comb += res
 
     def frame_counter(self, bits=16):
         t = Signal(bits)

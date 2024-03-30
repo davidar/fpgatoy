@@ -10,3 +10,6 @@
 [submodule "Silice"]
 	path = Silice
 	url = https://github.com/sylefeb/Silice.git
+[submodule "verilog-buildingblocks"]
+	path = verilog-buildingblocks
+	url = ../verilog-buildingblocks.git

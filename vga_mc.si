@@ -9,7 +9,8 @@ $$Nsteps = 46
 $$if SIMULATION then
 import('verilator_random.v')
 $$else
-append('ringosc.v')
+append('verilog-buildingblocks/lattice_ecp5/ringoscillator.v')
+append('verilog-buildingblocks/lattice_ecp5/random.v')
 import('Silice/projects/vga_demo/random.v')
 $$end
 
