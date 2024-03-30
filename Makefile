@@ -9,6 +9,7 @@ $(SILICE_DIR)/silice:
 		--frameworks_dir Silice/frameworks/ \
 		--framework Silice/frameworks/boards/bare/bare.v \
 		$(if $(SIMULATION),-P SIMULATION=1)
+	rm -f $**.log $@*.lpp
 
 %.vhd.v: %.vhd
 	ghdl -i --std=08 $^ && ghdl -m --std=08 $* && \

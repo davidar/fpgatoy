@@ -25,7 +25,7 @@ def main_image(self):
         i_reset=ResetSignal(),
         i_in_pix_x=self.vtg.source.hcount,
         i_in_pix_y=self.vtg.source.vcount,
-        i_in_pix_active=self.vtg.source.de,
+        i_in_pix_active=(self.vtg.source.hcount < 640) & (self.vtg.source.vcount < 480),
         i_in_pix_vblank=(self.vtg.source.vcount >= 480),
         i_in_vga_hs=self.vtg.source.hsync,
         i_in_vga_vs=self.vtg.source.vsync,
