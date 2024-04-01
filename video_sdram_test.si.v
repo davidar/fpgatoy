@@ -38,12 +38,11 @@ output out_clock;
 input clock;
 assign out_clock = clock;
 reg  [0:0] _t_vsync_filtered;
+reg  [0:0] _t_i_bands_buffer;
 reg  [7:0] _t___sub_bands_pix_palidx;
 
 reg  [15:0] _d_shift;
 reg  [15:0] _q_shift;
-reg  [0:0] _d_i_bands_buffer;
-reg  [0:0] _q_i_bands_buffer;
 reg  [9:0] _d___sub_bands_pix_x;
 reg  [9:0] _q___sub_bands_pix_x;
 reg  [8:0] _d___sub_bands_pix_y;
@@ -84,7 +83,6 @@ assume property($initstate || (out_done));
 `endif
 always @* begin
 _d_shift = _q_shift;
-_d_i_bands_buffer = _q_i_bands_buffer;
 _d___sub_bands_pix_x = _q___sub_bands_pix_x;
 _d___sub_bands_pix_y = _q___sub_bands_pix_y;
 _d_delayed_51_0 = _q_delayed_51_0;
@@ -96,6 +94,7 @@ _d_sd_wmask = _q_sd_wmask;
 _d_fbuffer = _q_fbuffer;
 _d__idx_fsm0 = _q__idx_fsm0;
 _d_caller = _q_caller;
+_t_i_bands_buffer = 0;
 _t___sub_bands_pix_palidx = 0;
 // _always_pre
 _t_vsync_filtered = _d_delayed_51_0;
@@ -109,23 +108,95 @@ _d_sd_rw = 1;
 case (_q__idx_fsm0)
 1: begin
 // _top
+_d_sd_addr = 32'h82000000+32'h3000;
+
+_d_sd_data_in = 0;
+
+_d_sd_in_valid = 1;
+
 _d__idx_fsm0 = 2;
 end
 2: begin
 // __while__block_31
-if (1) begin
+if (!in_sd_done) begin
 // __block_32
 // __block_34
-
-_d_i_bands_buffer = ~_q_fbuffer;
-_d__idx_fsm0 = 3;
-_d_caller = 0;
+// __block_35
+_d__idx_fsm0 = 2;
 end else begin
 // __block_33
-_d__idx_fsm0 = 0;
+_d_sd_addr = 32'h82000000+32'h2808;
+
+_d_sd_data_in = 0;
+
+_d_sd_in_valid = 1;
+
+_d__idx_fsm0 = 3;
 end
 end
 3: begin
+// __while__block_36
+if (!in_sd_done) begin
+// __block_37
+// __block_39
+// __block_40
+_d__idx_fsm0 = 3;
+end else begin
+// __block_38
+_d_sd_addr = 32'h82000000+32'h3000;
+
+_d_sd_data_in = 1;
+
+_d_sd_in_valid = 1;
+
+_d__idx_fsm0 = 4;
+end
+end
+4: begin
+// __while__block_41
+if (!in_sd_done) begin
+// __block_42
+// __block_44
+// __block_45
+_d__idx_fsm0 = 4;
+end else begin
+// __block_43
+_d_sd_addr = 32'h82000000+32'h2808;
+
+_d_sd_data_in = 1;
+
+_d_sd_in_valid = 1;
+
+_d__idx_fsm0 = 5;
+end
+end
+5: begin
+// __while__block_46
+if (!in_sd_done) begin
+// __block_47
+// __block_49
+// __block_50
+_d__idx_fsm0 = 5;
+end else begin
+// __block_48
+_d__idx_fsm0 = 6;
+end
+end
+6: begin
+// __while__block_51
+if (1) begin
+// __block_52
+// __block_54
+
+_t_i_bands_buffer = ~_q_fbuffer;
+_d__idx_fsm0 = 7;
+_d_caller = 0;
+end else begin
+// __block_53
+_d__idx_fsm0 = 0;
+end
+end
+7: begin
 // __sub_bands (bands)
 // var inits
 _d___sub_bands_pix_x = 0;
@@ -134,78 +205,78 @@ _t___sub_bands_pix_palidx = 0;
 // --
 _d___sub_bands_pix_y = 0;
 
-_d__idx_fsm0 = 4;
+_d__idx_fsm0 = 8;
 end
-5: begin
-// __block_35
+9: begin
+// __block_55
 
 _d_shift = (_q_shift==639) ? 0:_q_shift+1;
 
-_d__idx_fsm0 = 7;
+_d__idx_fsm0 = 11;
 end
-4: begin
+8: begin
 // __while__block_16 (bands)
 if (_q___sub_bands_pix_y!=480) begin
 // __block_17 (bands)
 // __block_19 (bands)
 _d___sub_bands_pix_x = 0;
 
-_d__idx_fsm0 = 6;
+_d__idx_fsm0 = 10;
 end else begin
 // __block_18 (bands)
-_d__idx_fsm0 = 4'd5;
+_d__idx_fsm0 = 4'd9;
 end
 end
-7: begin
-// __while__block_36
+11: begin
+// __while__block_56
 if (_t_vsync_filtered==0) begin
-// __block_37
-// __block_39
-// __block_40
-_d__idx_fsm0 = 7;
+// __block_57
+// __block_59
+// __block_60
+_d__idx_fsm0 = 11;
 end else begin
-// __block_38
+// __block_58
 _d_fbuffer = ~_q_fbuffer;
 
-// __block_41
-_d__idx_fsm0 = 2;
+// __block_61
+_d__idx_fsm0 = 6;
 end
 end
-6: begin
+10: begin
 // __while__block_20 (bands)
 if (_q___sub_bands_pix_x!=640) begin
 // __block_21 (bands)
 // __block_23 (bands)
 _t___sub_bands_pix_palidx = (_q___sub_bands_pix_y==0||_q___sub_bands_pix_y==478) ? 255:(_q___sub_bands_pix_x+_q___sub_bands_pix_y+_q_shift);
 
-_d_sd_addr = {1'b0,_q_i_bands_buffer,24'b0}|(_q___sub_bands_pix_x)|(_q___sub_bands_pix_y<<10);
+_d_sd_addr = 32'h40c00000|(_q___sub_bands_pix_x)|(_q___sub_bands_pix_y<<10);
 
 _d_sd_data_in = _t___sub_bands_pix_palidx;
 
 _d_sd_in_valid = 1;
 
-_d__idx_fsm0 = 8;
+_d__idx_fsm0 = 12;
 end else begin
 // __block_22 (bands)
 _d___sub_bands_pix_y = _q___sub_bands_pix_y+1;
 
 // __block_30 (bands)
-_d__idx_fsm0 = 4;
+_d__idx_fsm0 = 8;
 end
 end
-8: begin
+12: begin
 // __while__block_24 (bands)
 if (!in_sd_done) begin
 // __block_25 (bands)
 // __block_27 (bands)
 // __block_28 (bands)
-_d__idx_fsm0 = 8;
+_d__idx_fsm0 = 12;
 end else begin
 // __block_26 (bands)
 _d___sub_bands_pix_x = _q___sub_bands_pix_x+1;
 
 // __block_29 (bands)
-_d__idx_fsm0 = 6;
+_d__idx_fsm0 = 10;
 end
 end
 0: begin 
@@ -223,7 +294,6 @@ end
 
 always @(posedge clock) begin
 _q_shift <= (reset) ? 0 : _d_shift;
-_q_i_bands_buffer <= _d_i_bands_buffer;
 _q___sub_bands_pix_x <= (reset) ? 0 : _d___sub_bands_pix_x;
 _q___sub_bands_pix_y <= (reset) ? 0 : _d___sub_bands_pix_y;
 _q_delayed_51_0 <= _d_delayed_51_0;

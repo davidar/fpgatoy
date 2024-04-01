@@ -65,11 +65,12 @@ $$else
 $$end
         // write to sdram
         sd.data_in    = 0;
-$$if SDRAM_r512_w64 then
-        sd.addr       = {1b0,buffer,24b0} | (pix_x<<3) | (pix_y << 10);
-$$else
-        sd.addr       = {1b0,buffer,24b0} | (pix_x) | (pix_y << 10);
-$$end
+// $$if SDRAM_r512_w64 then
+//         sd.addr       = {1b0,buffer,24b0} | (pix_x<<3) | (pix_y << 10);
+// $$else
+//         sd.addr       = {1b0,buffer,24b0} | (pix_x) | (pix_y << 10);
+// $$end
+        sd.addr       = 32h40c00000 | (pix_x) | (pix_y << 10);
         sd.in_valid   = 1; // go ahead!
         while (!sd.done) { }
         pix_x = pix_x + 1;
@@ -93,21 +94,22 @@ $$end
       while (pix_x != 640) {
 
         pix_palidx     = (pix_y == 0 || pix_y == 478) ? 255 : (pix_x + pix_y + shift);
-$$if SDRAM_r512_w64 then
-        sd.data_in[{pix_x[0,3],3b000},8] = pix_palidx;
-        if ((pix_x & 7) == 7) {
-          // write to sdram
-          sd.addr       = {1b0,buffer,24b0} | (pix_x[3,7]<<3) | (pix_y << 10);
-          sd.in_valid = 1; // go ahead!
-          while (!sd.done) { }
-        }
-$$else
+// $$if SDRAM_r512_w64 then
+//         sd.data_in[{pix_x[0,3],3b000},8] = pix_palidx;
+//         if ((pix_x & 7) == 7) {
+//           // write to sdram
+//           sd.addr       = {1b0,buffer,24b0} | (pix_x[3,7]<<3) | (pix_y << 10);
+//           sd.in_valid = 1; // go ahead!
+//           while (!sd.done) { }
+//         }
+// $$else
         // write to sdram
-        sd.addr       = {1b0,buffer,24b0} | (pix_x) | (pix_y << 10);
+        // sd.addr       = {1b0,buffer,24b0} | (pix_x) | (pix_y << 10);
+        sd.addr       = 32h40c00000 | (pix_x) | (pix_y << 10);
         sd.data_in    = pix_palidx;
         sd.in_valid = 1; // go ahead!
         while (!sd.done) { }
-$$end
+// $$end
         pix_x = pix_x + 1;
       }
       pix_y = pix_y + 1;
@@ -127,6 +129,34 @@ $$end
 
   //() <- bands <- (0);
   //() <- bands <- (1);
+
+  // #define CSR_BASE 0x82000000L
+  // static inline void video_framebuffer_vtg_enable_write(uint32_t v) {
+  //     csr_write_simple(v, (CSR_BASE + 0x3000L));
+  // }
+  // static inline void video_framebuffer_dma_enable_write(uint32_t v) {
+  //     csr_write_simple(v, (CSR_BASE + 0x2808L));
+  // }
+  // video_framebuffer_vtg_enable_write(0);
+  // video_framebuffer_dma_enable_write(0);
+  // video_framebuffer_vtg_enable_write(1);
+  // video_framebuffer_dma_enable_write(1);
+  sd.addr = 32h82000000 + 32h3000;
+  sd.data_in = 0;
+  sd.in_valid = 1;
+  while (!sd.done) { }
+  sd.addr = 32h82000000 + 32h2808;
+  sd.data_in = 0;
+  sd.in_valid = 1;
+  while (!sd.done) { }
+  sd.addr = 32h82000000 + 32h3000;
+  sd.data_in = 1;
+  sd.in_valid = 1;
+  while (!sd.done) { }
+  sd.addr = 32h82000000 + 32h2808;
+  sd.data_in = 1;
+  sd.in_valid = 1;
+  while (!sd.done) { }
 
   while (1) {
 
