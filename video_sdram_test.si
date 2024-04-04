@@ -48,6 +48,18 @@ algorithm frame_drawer(
   uint16 shift = 0;
   uint1  vsync_filtered = 0;
 
+  // --- Palette
+  simple_dualport_bram uint24 palette[] = {
+    // palette from pre-processor table
+$$  for i=0,255 do
+$$if palette then
+  $palette[1+i]$,
+$$else
+  $(i) | (((i<<1)&255)<<8) | (((i<<2)&255)<<16)$,
+$$  end
+$$end
+  };
+
   subroutine clear(
     readwrites sd,
     input   uint1 buffer
@@ -56,13 +68,13 @@ algorithm frame_drawer(
     uint9  pix_y   = 0;
 
     pix_y = 0;
-    while (pix_y != 480) {
+    while (pix_y < 480) {
       pix_x  = 0;
-$$if SDRAM_r512_w64 then
-      while (pix_x != $640//8$) {
-$$else
-      while (pix_x != 640) {
-$$end
+// $$if SDRAM_r512_w64 then
+//       while (pix_x != $640//8$) {
+// $$else
+      while (pix_x < 640) {
+// $$end
         // write to sdram
         sd.data_in    = 0;
 // $$if SDRAM_r512_w64 then
@@ -73,6 +85,7 @@ $$end
         sd.addr       = 32h40c00000 | (pix_x) | (pix_y << 10);
         sd.in_valid   = 1; // go ahead!
         while (!sd.done) { }
+        sd.in_valid   = 0;
         pix_x = pix_x + 1;
       }
       pix_y = pix_y + 1;
@@ -80,6 +93,7 @@ $$end
   }
 
   subroutine bands(
+    reads   palette,
     reads   shift,
     readwrites sd,
     input   uint1 buffer
@@ -89,11 +103,11 @@ $$end
     uint8  pix_palidx = 0;
 
     pix_y = 0;
-    while (pix_y != 480) {
+    while (pix_y < 480) {
       pix_x  = 0;
-      while (pix_x != 640) {
+      while (pix_x < 640) {
 
-        pix_palidx     = (pix_y == 0 || pix_y == 478) ? 255 : (pix_x + pix_y + shift);
+        pix_palidx     = (pix_x + pix_y + shift);
 // $$if SDRAM_r512_w64 then
 //         sd.data_in[{pix_x[0,3],3b000},8] = pix_palidx;
 //         if ((pix_x & 7) == 7) {
@@ -105,10 +119,16 @@ $$end
 // $$else
         // write to sdram
         // sd.addr       = {1b0,buffer,24b0} | (pix_x) | (pix_y << 10);
-        sd.addr       = 32h40c00000 | (pix_x) | (pix_y << 10);
-        sd.data_in    = pix_palidx;
+        sd.addr       = 32h40c00000 + pix_x * 4 + pix_y * 640 * 4;
+        palette.addr0 = pix_palidx;
+        sd.data_in    = palette.rdata0;
         sd.in_valid = 1; // go ahead!
         while (!sd.done) { }
+        sd.in_valid   = 0;
+        int8 wait = 5;
+        while (wait > 0) {
+          wait = wait - 1;
+        }
 // $$end
         pix_x = pix_x + 1;
       }
@@ -123,13 +143,6 @@ $$end
   sd.in_valid   := 0; // maintain low (pulses high when needed)
   sd.rw         := 1; // always writes
 
-  // clear SDRAM buffers
-  //() <- clear <- (0);
-  //() <- clear <- (1);
-
-  //() <- bands <- (0);
-  //() <- bands <- (1);
-
   // #define CSR_BASE 0x82000000L
   // static inline void video_framebuffer_vtg_enable_write(uint32_t v) {
   //     csr_write_simple(v, (CSR_BASE + 0x3000L));
@@ -141,22 +154,33 @@ $$end
   // video_framebuffer_dma_enable_write(0);
   // video_framebuffer_vtg_enable_write(1);
   // video_framebuffer_dma_enable_write(1);
-  sd.addr = 32h82000000 + 32h3000;
-  sd.data_in = 0;
-  sd.in_valid = 1;
-  while (!sd.done) { }
-  sd.addr = 32h82000000 + 32h2808;
-  sd.data_in = 0;
-  sd.in_valid = 1;
-  while (!sd.done) { }
-  sd.addr = 32h82000000 + 32h3000;
-  sd.data_in = 1;
-  sd.in_valid = 1;
-  while (!sd.done) { }
-  sd.addr = 32h82000000 + 32h2808;
-  sd.data_in = 1;
-  sd.in_valid = 1;
-  while (!sd.done) { }
+  // sd.addr = 32h82000000 + 32h3000;
+  // sd.data_in = 0;
+  // sd.in_valid = 1;
+  // while (!sd.done) { }
+  // sd.in_valid = 0;
+  // sd.addr = 32h82000000 + 32h2808;
+  // sd.data_in = 0;
+  // sd.in_valid = 1;
+  // while (!sd.done) { }
+  // sd.in_valid = 0;
+  // sd.addr = 32h82000000 + 32h3000;
+  // sd.data_in = 1;
+  // sd.in_valid = 1;
+  // while (!sd.done) { }
+  // sd.in_valid = 0;
+  // sd.addr = 32h82000000 + 32h2808;
+  // sd.data_in = 1;
+  // sd.in_valid = 1;
+  // while (!sd.done) { }
+  // sd.in_valid = 0;
+
+  // clear SDRAM buffers
+  // () <- clear <- (0);
+  //() <- clear <- (1);
+
+  //() <- bands <- (0);
+  //() <- bands <- (1);
 
   while (1) {
 
@@ -164,13 +188,13 @@ $$end
     () <- bands <- (~fbuffer);
 
     // increment shift
-    shift = (shift == 639) ? 0 : shift+1;
+    shift = (shift == 639) ? 0 : shift+9;
 
     // wait for frame to end
-    while (vsync_filtered == 0) {}
+    // while (vsync_filtered == 0) {}
 
     // swap buffers
-    fbuffer = ~fbuffer;
+    // fbuffer = ~fbuffer;
 
   }
 
