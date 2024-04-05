@@ -310,7 +310,7 @@ output  [32-1:0] out_sd_addr;
 output  [1-1:0] out_sd_rw;
 output  [32-1:0] out_sd_data_in;
 output  [1-1:0] out_sd_in_valid;
-output  [1-1:0] out_sd_wmask;
+output  [4-1:0] out_sd_wmask;
 output  [0:0] out_fbuffer;
 input in_run;
 output out_done;
@@ -346,8 +346,8 @@ reg  [32-1:0] _d_sd_data_in;
 reg  [32-1:0] _q_sd_data_in;
 reg  [1-1:0] _d_sd_in_valid;
 reg  [1-1:0] _q_sd_in_valid;
-reg  [1-1:0] _d_sd_wmask;
-reg  [1-1:0] _q_sd_wmask;
+reg  [4-1:0] _d_sd_wmask;
+reg  [4-1:0] _q_sd_wmask;
 reg  [0:0] _d_fbuffer;
 reg  [0:0] _q_fbuffer;
 reg  [3:0] _d__idx_fsm0,_q__idx_fsm0;
@@ -406,6 +406,8 @@ _d_delayed_317_0 =  in_vsync;
 _d_sd_in_valid = 0;
 
 _d_sd_rw = 1;
+
+_d_sd_wmask = 4'b1111;
 
 (* full_case *)
 case (_q__idx_fsm0)

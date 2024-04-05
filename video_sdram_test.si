@@ -142,6 +142,7 @@ $$end
 
   sd.in_valid   := 0; // maintain low (pulses high when needed)
   sd.rw         := 1; // always writes
+  sd.wmask      := 4b1111; // always writes all 4 bytes
 
   // #define CSR_BASE 0x82000000L
   // static inline void video_framebuffer_vtg_enable_write(uint32_t v) {
