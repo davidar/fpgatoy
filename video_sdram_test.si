@@ -16,8 +16,6 @@ $$else
 $$SDRAM_r512_w64 = false
 $$end
 
-//include('video_sdram_main.si')
-
 interface sdram_user {
   output  addr,
   output  rw,
@@ -35,15 +33,9 @@ algorithm frame_drawer(
   input  uint1  sdram_clock,
   input  uint1  sdram_reset,
   input  uint1  vsync,
+  input  uint32 framebuffer_base,
   output uint1  fbuffer,
-  // output uint8  leds,
 ) <autorun> {
-
-  // sameas(sd) sd;
-  // sdram_half_speed_access sdram_slower<@sdram_clock,!sdram_reset>(
-  //   sd  <:> sd,
-  //   sd <:> sd
-  // );
 
   uint16 shift = 0;
   uint1  vsync_filtered = 0;
@@ -59,38 +51,6 @@ $$else
 $$  end
 $$end
   };
-
-  subroutine clear(
-    readwrites sd,
-    input   uint1 buffer
-  ) {
-    uint10 pix_x   = 0;
-    uint9  pix_y   = 0;
-
-    pix_y = 0;
-    while (pix_y < 480) {
-      pix_x  = 0;
-// $$if SDRAM_r512_w64 then
-//       while (pix_x != $640//8$) {
-// $$else
-      while (pix_x < 640) {
-// $$end
-        // write to sdram
-        sd.data_in    = 0;
-// $$if SDRAM_r512_w64 then
-//         sd.addr       = {1b0,buffer,24b0} | (pix_x<<3) | (pix_y << 10);
-// $$else
-//         sd.addr       = {1b0,buffer,24b0} | (pix_x) | (pix_y << 10);
-// $$end
-        sd.addr       = 32h40c00000 | (pix_x) | (pix_y << 10);
-        sd.in_valid   = 1; // go ahead!
-        while (!sd.done) { }
-        sd.in_valid   = 0;
-        pix_x = pix_x + 1;
-      }
-      pix_y = pix_y + 1;
-    }
-  }
 
   subroutine bands(
     reads   palette,
@@ -108,28 +68,16 @@ $$end
       while (pix_x < 640) {
 
         pix_palidx     = (pix_x + pix_y + shift);
-// $$if SDRAM_r512_w64 then
-//         sd.data_in[{pix_x[0,3],3b000},8] = pix_palidx;
-//         if ((pix_x & 7) == 7) {
-//           // write to sdram
-//           sd.addr       = {1b0,buffer,24b0} | (pix_x[3,7]<<3) | (pix_y << 10);
-//           sd.in_valid = 1; // go ahead!
-//           while (!sd.done) { }
-//         }
-// $$else
         // write to sdram
-        // sd.addr       = {1b0,buffer,24b0} | (pix_x) | (pix_y << 10);
-        sd.addr       = 32h40c00000 + pix_x * 4 + pix_y * 640 * 4;
+        sd.addr       = framebuffer_base + pix_x * 4 + pix_y * 640 * 4;
         palette.addr0 = pix_palidx;
         sd.data_in    = palette.rdata0;
         sd.in_valid = 1; // go ahead!
         while (!sd.done) { }
-        sd.in_valid   = 0;
         int8 wait = 5;
         while (wait > 0) {
           wait = wait - 1;
         }
-// $$end
         pix_x = pix_x + 1;
       }
       pix_y = pix_y + 1;
@@ -138,50 +86,11 @@ $$end
 
   vsync_filtered ::= vsync;
 
-  // leds := 0;
-
   sd.in_valid   := 0; // maintain low (pulses high when needed)
   sd.rw         := 1; // always writes
   sd.wmask      := 4b1111; // always writes all 4 bytes
 
-  // #define CSR_BASE 0x82000000L
-  // static inline void video_framebuffer_vtg_enable_write(uint32_t v) {
-  //     csr_write_simple(v, (CSR_BASE + 0x3000L));
-  // }
-  // static inline void video_framebuffer_dma_enable_write(uint32_t v) {
-  //     csr_write_simple(v, (CSR_BASE + 0x2808L));
-  // }
-  // video_framebuffer_vtg_enable_write(0);
-  // video_framebuffer_dma_enable_write(0);
-  // video_framebuffer_vtg_enable_write(1);
-  // video_framebuffer_dma_enable_write(1);
-  // sd.addr = 32h82000000 + 32h3000;
-  // sd.data_in = 0;
-  // sd.in_valid = 1;
-  // while (!sd.done) { }
-  // sd.in_valid = 0;
-  // sd.addr = 32h82000000 + 32h2808;
-  // sd.data_in = 0;
-  // sd.in_valid = 1;
-  // while (!sd.done) { }
-  // sd.in_valid = 0;
-  // sd.addr = 32h82000000 + 32h3000;
-  // sd.data_in = 1;
-  // sd.in_valid = 1;
-  // while (!sd.done) { }
-  // sd.in_valid = 0;
-  // sd.addr = 32h82000000 + 32h2808;
-  // sd.data_in = 1;
-  // sd.in_valid = 1;
-  // while (!sd.done) { }
-  // sd.in_valid = 0;
-
-  // clear SDRAM buffers
-  // () <- clear <- (0);
-  //() <- clear <- (1);
-
-  //() <- bands <- (0);
-  //() <- bands <- (1);
+  while (framebuffer_base == 0) { } // wait for framebuffer to be set
 
   while (1) {
 
