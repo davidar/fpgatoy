@@ -69,7 +69,7 @@ $$end
 
         pix_palidx     = (pix_x + pix_y + shift);
         // write to sdram
-        sd.addr       = framebuffer_base + pix_x * 4 + pix_y * 640 * 4;
+        sd.addr       = framebuffer_base + 4 * (pix_x + 640 * (pix_y + 480 * buffer));
         palette.addr0 = pix_palidx;
         sd.data_in    = palette.rdata0;
         sd.in_valid = 1; // go ahead!
@@ -101,10 +101,10 @@ $$end
     shift = (shift == 639) ? 0 : shift+9;
 
     // wait for frame to end
-    // while (vsync_filtered == 0) {}
+    while (vsync_filtered == 0) {}
 
     // swap buffers
-    // fbuffer = ~fbuffer;
+    fbuffer = ~fbuffer;
 
   }
 

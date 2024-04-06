@@ -325,13 +325,14 @@ reg  [0:0] _t_vsync_filtered;
 reg  [0:0] _t_palette_wenable1;
 reg  [23:0] _t_palette_wdata1;
 reg  [7:0] _t_palette_addr1;
-reg  [0:0] _t_i_bands_buffer;
 reg  [7:0] _t___sub_bands_pix_palidx;
 
 reg  [15:0] _d_shift;
 reg  [15:0] _q_shift;
 reg  [7:0] _d_palette_addr0 = 0;
 reg  [7:0] _q_palette_addr0 = 0;
+reg  [0:0] _d_i_bands_buffer;
+reg  [0:0] _q_i_bands_buffer;
 reg  [9:0] _d___sub_bands_pix_x;
 reg  [9:0] _q___sub_bands_pix_x;
 reg  [8:0] _d___sub_bands_pix_y;
@@ -384,6 +385,7 @@ assume property($initstate || (out_done));
 always @* begin
 _d_shift = _q_shift;
 _d_palette_addr0 = _q_palette_addr0;
+_d_i_bands_buffer = _q_i_bands_buffer;
 _d___sub_bands_pix_x = _q___sub_bands_pix_x;
 _d___sub_bands_pix_y = _q___sub_bands_pix_y;
 _d___block_11_wait = _q___block_11_wait;
@@ -399,7 +401,6 @@ _d_caller = _q_caller;
 _t_palette_wenable1 = 0;
 _t_palette_wdata1 = 0;
 _t_palette_addr1 = 0;
-_t_i_bands_buffer = 0;
 _t___sub_bands_pix_palidx = 0;
 // _always_pre
 _t_vsync_filtered = _d_delayed_297_0;
@@ -435,7 +436,7 @@ if (1) begin
 // __block_27
 // __block_29
 
-_t_i_bands_buffer = ~_q_fbuffer;
+_d_i_bands_buffer = ~_q_fbuffer;
 _d__idx_fsm0 = 4;
 _d_caller = 0;
 end else begin
@@ -459,8 +460,7 @@ end
 
 _d_shift = (_q_shift==639) ? 0:_q_shift+9;
 
-// __block_31
-_d__idx_fsm0 = 3;
+_d__idx_fsm0 = 8;
 end
 5: begin
 // __while__block_1 (bands)
@@ -475,6 +475,21 @@ end else begin
 _d__idx_fsm0 = 4'd6;
 end
 end
+8: begin
+// __while__block_31
+if (_t_vsync_filtered==0) begin
+// __block_32
+// __block_34
+// __block_35
+_d__idx_fsm0 = 8;
+end else begin
+// __block_33
+_d_fbuffer = ~_q_fbuffer;
+
+// __block_36
+_d__idx_fsm0 = 3;
+end
+end
 7: begin
 // __while__block_5 (bands)
 if (_q___sub_bands_pix_x<640) begin
@@ -482,7 +497,7 @@ if (_q___sub_bands_pix_x<640) begin
 // __block_8 (bands)
 _t___sub_bands_pix_palidx = (_q___sub_bands_pix_x+_q___sub_bands_pix_y+_q_shift);
 
-_d_sd_addr = in_framebuffer_base+_q___sub_bands_pix_x*4+_q___sub_bands_pix_y*640*4;
+_d_sd_addr = in_framebuffer_base+4*(_q___sub_bands_pix_x+640*(_q___sub_bands_pix_y+480*_q_i_bands_buffer));
 
 _d_palette_addr0 = _t___sub_bands_pix_palidx;
 
@@ -490,7 +505,7 @@ _d_sd_data_in = _w_mem_palette_rdata0;
 
 _d_sd_in_valid = 1;
 
-_d__idx_fsm0 = 8;
+_d__idx_fsm0 = 9;
 end else begin
 // __block_7 (bands)
 _d___sub_bands_pix_y = _q___sub_bands_pix_y+1;
@@ -499,22 +514,22 @@ _d___sub_bands_pix_y = _q___sub_bands_pix_y+1;
 _d__idx_fsm0 = 5;
 end
 end
-8: begin
+9: begin
 // __while__block_9 (bands)
 if (!in_sd_done) begin
 // __block_10 (bands)
 // __block_12 (bands)
 // __block_13 (bands)
-_d__idx_fsm0 = 8;
+_d__idx_fsm0 = 9;
 end else begin
 // __block_11 (bands)
 // var inits
 _d___block_11_wait = 5;
 // --
-_d__idx_fsm0 = 9;
+_d__idx_fsm0 = 10;
 end
 end
-9: begin
+10: begin
 // __while__block_14 (bands)
 if (_q___block_11_wait>0) begin
 // __block_15 (bands)
@@ -522,7 +537,7 @@ if (_q___block_11_wait>0) begin
 _d___block_11_wait = _q___block_11_wait-1;
 
 // __block_18 (bands)
-_d__idx_fsm0 = 9;
+_d__idx_fsm0 = 10;
 end else begin
 // __block_16 (bands)
 _d___sub_bands_pix_x = _q___sub_bands_pix_x+1;
@@ -547,6 +562,7 @@ end
 always @(posedge clock) begin
 _q_shift <= (reset) ? 0 : _d_shift;
 _q_palette_addr0 <= _d_palette_addr0;
+_q_i_bands_buffer <= _d_i_bands_buffer;
 _q___sub_bands_pix_x <= (reset) ? 0 : _d___sub_bands_pix_x;
 _q___sub_bands_pix_y <= (reset) ? 0 : _d___sub_bands_pix_y;
 _q___block_11_wait <= (reset) ? 5 : _d___block_11_wait;
