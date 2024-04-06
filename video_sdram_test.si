@@ -74,10 +74,10 @@ $$end
         sd.data_in    = palette.rdata0;
         sd.in_valid = 1; // go ahead!
         while (!sd.done) { }
-        int8 wait = 5;
-        while (wait > 0) {
-          wait = wait - 1;
-        }
+        // int8 wait = 5;
+        // while (wait > 0) {
+        //   wait = wait - 1;
+        // }
         pix_x = pix_x + 1;
       }
       pix_y = pix_y + 1;
@@ -98,7 +98,7 @@ $$end
     () <- bands <- (~fbuffer);
 
     // increment shift
-    shift = (shift == 639) ? 0 : shift+9;
+    shift = (shift == 639) ? 0 : shift+1;
 
     // wait for frame to end
     while (vsync_filtered == 0) {}

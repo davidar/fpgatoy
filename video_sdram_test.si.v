@@ -337,10 +337,8 @@ reg  [9:0] _d___sub_bands_pix_x;
 reg  [9:0] _q___sub_bands_pix_x;
 reg  [8:0] _d___sub_bands_pix_y;
 reg  [8:0] _q___sub_bands_pix_y;
-reg signed [7:0] _d___block_11_wait;
-reg signed [7:0] _q___block_11_wait;
-reg  [0:0] _d_delayed_297_0;
-reg  [0:0] _q_delayed_297_0;
+reg  [0:0] _d_delayed_293_0;
+reg  [0:0] _q_delayed_293_0;
 reg  [32-1:0] _d_sd_addr;
 reg  [32-1:0] _q_sd_addr;
 reg  [1-1:0] _d_sd_rw;
@@ -388,8 +386,7 @@ _d_palette_addr0 = _q_palette_addr0;
 _d_i_bands_buffer = _q_i_bands_buffer;
 _d___sub_bands_pix_x = _q___sub_bands_pix_x;
 _d___sub_bands_pix_y = _q___sub_bands_pix_y;
-_d___block_11_wait = _q___block_11_wait;
-_d_delayed_297_0 = _q_delayed_297_0;
+_d_delayed_293_0 = _q_delayed_293_0;
 _d_sd_addr = _q_sd_addr;
 _d_sd_rw = _q_sd_rw;
 _d_sd_data_in = _q_sd_data_in;
@@ -403,8 +400,8 @@ _t_palette_wdata1 = 0;
 _t_palette_addr1 = 0;
 _t___sub_bands_pix_palidx = 0;
 // _always_pre
-_t_vsync_filtered = _d_delayed_297_0;
-_d_delayed_297_0 =  in_vsync;
+_t_vsync_filtered = _d_delayed_293_0;
+_d_delayed_293_0 =  in_vsync;
 
 _d_sd_in_valid = 0;
 
@@ -419,28 +416,28 @@ case (_q__idx_fsm0)
 _d__idx_fsm0 = 2;
 end
 2: begin
-// __while__block_21
+// __while__block_16
 if (in_framebuffer_base==0) begin
-// __block_22
-// __block_24
-// __block_25
+// __block_17
+// __block_19
+// __block_20
 _d__idx_fsm0 = 2;
 end else begin
-// __block_23
+// __block_18
 _d__idx_fsm0 = 3;
 end
 end
 3: begin
-// __while__block_26
+// __while__block_21
 if (1) begin
-// __block_27
-// __block_29
+// __block_22
+// __block_24
 
 _d_i_bands_buffer = ~_q_fbuffer;
 _d__idx_fsm0 = 4;
 _d_caller = 0;
 end else begin
-// __block_28
+// __block_23
 _d__idx_fsm0 = 0;
 end
 end
@@ -456,9 +453,9 @@ _d___sub_bands_pix_y = 0;
 _d__idx_fsm0 = 5;
 end
 6: begin
-// __block_30
+// __block_25
 
-_d_shift = (_q_shift==639) ? 0:_q_shift+9;
+_d_shift = (_q_shift==639) ? 0:_q_shift+1;
 
 _d__idx_fsm0 = 8;
 end
@@ -476,17 +473,17 @@ _d__idx_fsm0 = 4'd6;
 end
 end
 8: begin
-// __while__block_31
+// __while__block_26
 if (_t_vsync_filtered==0) begin
-// __block_32
-// __block_34
-// __block_35
+// __block_27
+// __block_29
+// __block_30
 _d__idx_fsm0 = 8;
 end else begin
-// __block_33
+// __block_28
 _d_fbuffer = ~_q_fbuffer;
 
-// __block_36
+// __block_31
 _d__idx_fsm0 = 3;
 end
 end
@@ -510,7 +507,7 @@ end else begin
 // __block_7 (bands)
 _d___sub_bands_pix_y = _q___sub_bands_pix_y+1;
 
-// __block_20 (bands)
+// __block_15 (bands)
 _d__idx_fsm0 = 5;
 end
 end
@@ -523,26 +520,9 @@ if (!in_sd_done) begin
 _d__idx_fsm0 = 9;
 end else begin
 // __block_11 (bands)
-// var inits
-_d___block_11_wait = 5;
-// --
-_d__idx_fsm0 = 10;
-end
-end
-10: begin
-// __while__block_14 (bands)
-if (_q___block_11_wait>0) begin
-// __block_15 (bands)
-// __block_17 (bands)
-_d___block_11_wait = _q___block_11_wait-1;
-
-// __block_18 (bands)
-_d__idx_fsm0 = 10;
-end else begin
-// __block_16 (bands)
 _d___sub_bands_pix_x = _q___sub_bands_pix_x+1;
 
-// __block_19 (bands)
+// __block_14 (bands)
 _d__idx_fsm0 = 7;
 end
 end
@@ -565,8 +545,7 @@ _q_palette_addr0 <= _d_palette_addr0;
 _q_i_bands_buffer <= _d_i_bands_buffer;
 _q___sub_bands_pix_x <= (reset) ? 0 : _d___sub_bands_pix_x;
 _q___sub_bands_pix_y <= (reset) ? 0 : _d___sub_bands_pix_y;
-_q___block_11_wait <= (reset) ? 5 : _d___block_11_wait;
-_q_delayed_297_0 <= _d_delayed_297_0;
+_q_delayed_293_0 <= _d_delayed_293_0;
 _q_sd_addr <= (reset) ? 0 : _d_sd_addr;
 _q_sd_rw <= (reset) ? 1 : _d_sd_rw;
 _q_sd_data_in <= (reset) ? 0 : _d_sd_data_in;
