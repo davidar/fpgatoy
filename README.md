@@ -6,6 +6,9 @@ generating pixel values just in time to be sent out in the HDMI signal, without 
 
 ![](img/human_shader.jpeg)
 
+<img src="img/bands.png" width="33%" /> <img src="img/hedgehog.png" width="33%" /> <img src="img/rbzero.png" width="33%" />
+<img src="img/rt.png" width="33%" /> <img src="img/silice_vga_msponge.png" width="33%" /> <img src="img/vgatestsrc.png" width="33%" />
+
 ## Hardware
 
 I'm using a Colorlight i9, with [Muse Lab's development board](https://tomverbeure.github.io/2021/01/22/The-Colorlight-i5-as-FPGA-development-board.html).
