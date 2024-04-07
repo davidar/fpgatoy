@@ -105,7 +105,7 @@ class MySoC(BaseSoC):
             self._platform, self._sys_clk_freq, with_video_pll=True, pix_clk=25e6
         )
         BaseSoC.__init__(self, main_image, "hdmi")
-        self.init_uart()
+        # self.init_uart()
         # self.blink()
 
     def init_uart(self):
@@ -133,8 +133,8 @@ class MySoC(BaseSoC):
         prog = self._platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))
 
-        self.start_server()
-        self.connect()
+        # self.start_server()
+        # self.connect()
 
     def start_server(self, uart_port="/dev/ttyACM0"):
         comm = CommUART(uart_port)

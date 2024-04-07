@@ -30,3 +30,19 @@ If using WSL2:
 - [kernel with `CONFIG_USB_HIDDEV` enabled](https://github.com/microsoft/WSL2-Linux-Kernel/releases/tag/linux-msft-wsl-5.15.150.1)
 
 To build and load a simple example shader, just run `./example.py`
+
+Most of the examples run in simulation by default, but you can run them on the FPGA by
+commenting out the `@fpgatoy.SimSoC` line and uncommenting `@fpgatoy.MySoC`.
+This is the class that you'll need to modify to support different hardware,
+for the colorlight it looks like this:
+
+```py
+class MySoC(BaseSoC):
+    def __init__(self, main_image):
+        self._sys_clk_freq = int(25e6)
+        self._platform = colorlight_i5.Platform("i9", "7.2")
+        self.crg = colorlight_i5_CRG(
+            self._platform, self._sys_clk_freq, with_video_pll=True, pix_clk=25e6
+        )
+        BaseSoC.__init__(self, main_image, "hdmi")
+```

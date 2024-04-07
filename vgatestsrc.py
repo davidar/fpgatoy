@@ -5,6 +5,7 @@ import fpgatoy
 
 
 @fpgatoy.SimSoC
+# @fpgatoy.MySoC
 def main_image(self):
     self.connect_video()
     self.add_sources("vgatestsrc.v")

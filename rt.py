@@ -6,6 +6,7 @@ import os
 
 
 @fpgatoy.SimSoC
+# @fpgatoy.MySoC
 def main_image(self):
     self.connect_video("ready")
     self.add_sources("rt/RTCore.v")

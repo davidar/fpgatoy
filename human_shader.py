@@ -10,6 +10,7 @@ from migen import *
 import fpgatoy
 
 @fpgatoy.SimSoC
+# @fpgatoy.MySoC
 def main_image(self):
     self.connect_video()
     x, y, u, v, u2, v2, h, t, p, q, w0, R0, B0, o, R1, B1, w1, r, d, R2, B2, p1, c, o1, o2, R3, B3, c1, Ro, Bo, Rm, Bm, Go = [

@@ -30,8 +30,6 @@ interface sdram_user {
 
 algorithm frame_drawer(
   sdram_user    sd,
-  input  uint1  sdram_clock,
-  input  uint1  sdram_reset,
   input  uint1  vsync,
   input  uint32 framebuffer_base,
   output uint1  fbuffer,

@@ -2,7 +2,6 @@
 
 from migen import *
 import fpgatoy
-import os
 
 
 @fpgatoy.SimSoC

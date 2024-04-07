@@ -23,7 +23,8 @@ from migen import *
 import fpgatoy
 
 
-@fpgatoy.MySoC
+@fpgatoy.SimSoC
+# @fpgatoy.MySoC
 def main_image(self):
     self.connect_video()
     x = self.vtg.source.hcount
@@ -32,8 +33,8 @@ def main_image(self):
     return [
         self.video.sink.r.eq(t + (x >> 3) + 0),
         self.video.sink.g.eq(t + (y >> 3) + 160),
-        # self.video.sink.b.eq(t + (x >> 3) + 320),
-        self.video.sink.b.eq(self.user_input.storage),
+        self.video.sink.b.eq(t + (x >> 3) + 320),
+        # self.video.sink.b.eq(self.user_input.storage),
     ]
 
 
