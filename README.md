@@ -6,8 +6,8 @@ generating pixel values just in time to be sent out in the HDMI signal, without 
 
 ![](img/human_shader.jpeg)
 
-<img src="img/bands.png" width="33%" /> <img src="img/hedgehog.png" width="33%" /> <img src="img/rbzero.png" width="33%" />
-<img src="img/rt.png" width="33%" /> <img src="img/silice_vga_msponge.png" width="33%" /> <img src="img/vgatestsrc.png" width="33%" />
+<img src="img/bands.png" width="32%" /> <img src="img/hedgehog.png" width="32%" /> <img src="img/rbzero.png" width="32%" />
+<img src="img/rt.png" width="32%" /> <img src="img/silice_vga_msponge.png" width="32%" /> <img src="img/vgatestsrc.png" width="32%" />
 
 ## Hardware
 
