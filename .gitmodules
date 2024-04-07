@@ -1,15 +1,15 @@
 [submodule "rt"]
-	path = rt
+	path = src/rt
 	url = ../rt.git
 [submodule "projf-explore"]
-	path = projf-explore
+	path = src/projf-explore
 	url = https://github.com/projf/projf-explore.git
 [submodule "raybox-zero"]
-	path = raybox-zero
+	path = src/raybox-zero
 	url = https://github.com/algofoogle/raybox-zero.git
 [submodule "Silice"]
-	path = Silice
+	path = src/Silice
 	url = https://github.com/sylefeb/Silice.git
 [submodule "verilog-buildingblocks"]
-	path = verilog-buildingblocks
+	path = src/verilog-buildingblocks
 	url = ../verilog-buildingblocks.git
